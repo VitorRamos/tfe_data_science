@@ -13,4 +13,6 @@ print(df.columns)
 df= df[ (df["cores"] == 16)&(df["input"] == 5) ]
 # ploting
 df.plot(x="frequency", y="total_time")
+
+asdasdasdasdasdasd
 plt.show()
