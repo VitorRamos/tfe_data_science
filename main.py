@@ -10,10 +10,7 @@ def main():
     this_folder=os.path.dirname(os.path.abspath(this_file))
     setup=setupFile()
     data=readJson()
-    print(data)
-    #data.read()
     graphe=Graph()
-    """graphe.read()"""
     setup.read(this_folder+os.sep+file)
     setup._colorframe='#4f81bd'
     root.configure(bg=setup._colorframe)
