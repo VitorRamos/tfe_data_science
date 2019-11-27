@@ -1,0 +1,9 @@
+<header>
+    <filetype>interface_setup</filetype>
+    <versiondate></versiondate>
+</header>
+<body>
+    <colorframe>'#4f81bd'</colorframe>
+    <colorbutton>'#95b3d7'</colorbutton>
+    <colorflow>'#00b050'</colorflow>
+</body>

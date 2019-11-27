@@ -13,7 +13,6 @@ from typing import Any, Dict, List, Callable
 
 import numpy as np
 
-
 class PascalData:
     """
     Class that store parsec run measures values
