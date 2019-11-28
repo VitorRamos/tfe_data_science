@@ -11,13 +11,14 @@ def main():
     setup=setupFile()
     data=readJson()
     data.read()
-    print(data)
-    graphe=Graph()
+    print(data.res.columns)
+    datas=data.res[(data.res["input"]==5)]
+    graphe=Graph(datas)
     """graphe.read()"""
     setup.read(this_folder+os.sep+file)
     setup._colorframe='#4f81bd'
     root.configure(bg=setup._colorframe)
-    MainWindow(root,setup,graphe)
+    MainWindow(root,setup,graphe,datas)
     root.mainloop()
 class setupFile():
     def __init__(self):
@@ -52,6 +53,7 @@ class readJson():
         self.input_file="d:\Profiles\igauthier\Documents\cours\completo_black_3.json"
     def read(self):
         result=PascalData(self.input_file)
-        data=result.times()
+        datas=result.times()
+        self.res=datas.astype(float)
 if __name__=='__main__':
     main()
