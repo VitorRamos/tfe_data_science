@@ -4,6 +4,7 @@ from GUI import Graph
 from GUI import MainWindow
 from tkinter import tix
 root=tix.Tk()
+
 def main():
     file='interface_setup.txt'
     this_file=inspect.getfile(inspect.currentframe())
@@ -11,7 +12,6 @@ def main():
     setup=setupFile()
     data=readJson()
     data.read()
-    print(data.res.columns)
     datas=data.res[(data.res["input"]==5)]
     graphe=Graph(datas)
     """graphe.read()"""
@@ -20,11 +20,20 @@ def main():
     root.configure(bg=setup._colorframe)
     MainWindow(root,setup,graphe,datas)
     root.mainloop()
+
 class setupFile():
+    """ Class that read the setup file
+        Attributes
+            colorbutton - The color for the button
+            colorframe - The color for the window
+        Methods
+            read()"""
+    
     def __init__(self):
+        """ Create a empty object and initialize attributes."""
         self._colorbutton='#ffffff'
-        self._colorflow='#ffffff'
         self._colorframe='#ffffff'
+    
     def read(self,filename):
         GoodFile=False
         filetype=''
@@ -43,17 +52,25 @@ class setupFile():
                         self._colorframe=x[6]
                     if 'colorbutton'in x:
                         self._colorbutton=x[6]
-                    if 'colorflow'in x:
-                        self._colorflow=x[6]
                 elif (filetype!='')and(filetype!='interface_setup'):
                     return('interface_setup')
                     break
+
 class readJson():
+    """ Class that read the file in JSON format contaning the results
+        Attributes
+            input_file - The name of the file of results in input
+        Methods
+            read()"""
+    
     def __init__(self):
+        """ Create a empty object and initialize attribute."""
         self.input_file="d:\Profiles\igauthier\Documents\cours\completo_black_3.json"
+    
     def read(self):
         result=PascalData(self.input_file)
         datas=result.times()
         self.res=datas.astype(float)
+
 if __name__=='__main__':
     main()

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-    Module with Classes that generates xArray DataArray
-    with processed data from applications execution.
-"""
+""" Module with Classes that generates xArray DataArray
+    with processed data from applications execution."""
 
 import json
 import os
@@ -10,48 +8,34 @@ from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
 from typing import Any, Dict, List, Callable
-
 import numpy as np
 
-
 class PascalData:
-    """
-    Class that store parsec run measures values
-
-        Atrributes
+    """ Class that store parsec run measures values
+        Attributes
             config - The metadata about execution informations
             measures - Resume dictionary with all measures times
-
         Methods
             loadata()
             save_data()
             times()
             speedups()
             plot2D()
-            plot3D
-
-    """
+            plot3D"""
 
     def __init__(self, filename: str = None):
-        """
-        Create a empty object or initialized of data from a file saved
+        """ Create a empty object or initialized of data from a file saved
         with save_data method.
-
-        :param filename: File name that store measures
-        """
+        :param filename: File name that store measures"""
         self.config = {}
         self.data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-
         if filename:
             self.load_data(filename)
         return
 
     def __str__(self):
-        """
-        Default output string representation of class
-
-        :return: specific formated string
-        """
+        """Default output string representation of class
+        :return: specific formated string"""
 
         if not self.config:
             return "No data"
@@ -62,12 +46,9 @@ class PascalData:
         )
 
     def load_data(self, filename: str):
-        """
-        Read a file previously saved with method save_data() and initialize
+        """Read a file previously saved with method save_data() and initialize
         the object class dictionaries.
-
-        :param filename: Filename with data dictionary of execution times.
-        """
+        :param filename: Filename with data dictionary of execution times."""
 
         # TODO should we raise on error ?
         if os.path.isfile(filename):
@@ -86,12 +67,9 @@ class PascalData:
         return
 
     def save_data(self, filename: str = None):
-        """
-        Write to file the measures information stored on object class
-
+        """Write to file the measures information stored on object class
         :param filename: Filename to save on.
-        :return:
-        """
+        :return:"""
 
         if filename is None:
             filedatename = self.config["execdate"]
@@ -104,19 +82,15 @@ class PascalData:
 
     def measures_build(self, keys: List[Any], subkey: str, data: List[Any],
                        subvalue: str = None):
-        """
-        Resume all tests, grouped by keys in a dictionary.
-
+        """Resume all tests, grouped by keys in a dictionary.
         Dictionary format
             {"keys_1":{"subkey":data,...},...}
             {"keys_1":{"subkey":{"subvale":[data,...]},...},...}
-
         :param keys: Current configuration
         :param subkey: Group of data
         :param [subvalue]: Subgroup of data
         :param data: data to store
-        :return:
-        """
+        :return:      """
         keys = filter(lambda x: x is not None, keys)
         keys = map(str, keys)
         if subvalue is not None:
@@ -125,15 +99,11 @@ class PascalData:
             self.data[";".join(keys)][subkey] = data
 
     def dataframe_generic(self, set_index: bool = False):
-        """
-        Create dataframe with all generic data (not in subgroups)
-
+        """Create dataframe with all generic data (not in subgroups)
         format:
             key_1, key_2, ... generic_1, generic_2
-
         :param setindex: set dataframe index
-        :return: dataframe
-        """
+        :return: dataframe     """
         import pandas as pd
         df = []
         cols = self.config["data_descriptor"]["values"]
@@ -151,23 +121,18 @@ class PascalData:
 
     def dataframe_group(self, subkey: str, transform: Callable = None,
                         set_index: bool = False):
-        """
-        Create dataframe with all specific data (inside subgroup)
-
+        """Create dataframe with all specific data (inside subgroup)
         format:
             key_1, key_2, ... subgroup, subgroup_key1, subgroup_key2, ...
-
         :param subkey: group name
         :param transform: applied to each sensor data to create the rows
         :param setindex: set dataframe index
-        :return: dataframe
-        """
+        :return: dataframe        """
         if not "extras" in self.config["data_descriptor"]:
             raise Exception("No extra data")
         if not subkey in self.config["data_descriptor"]["extras"]:
             raise Exception("Invalid subkey")
         import pandas as pd
-
         if transform is None:
             def transform(x): return list(map(list, zip(*x)))
         df = []
@@ -186,14 +151,11 @@ class PascalData:
         return df
 
     def regions(self, method: str = "minmax", set_index: bool = False):
-        """
-            Calculates the average of region data and averages between
+        """ Calculates the average of region data and averages between
             runs
-
             :param method: minmax, maxthread
             :param setindex: set dataframe index
-            :return: dataframe
-        """
+            :return: dataframe        """
         df = self.data.dataframe_group("region")
         if method == "minmax":
             df["start_time"] = df["start_time"].apply(np.min)
@@ -203,30 +165,23 @@ class PascalData:
             df["start_time"] = df["start_time"].apply(np.array)
             df["stop_time"] = df["stop_time"].apply(np.array)
             df["elaped_time"] = df["stop_time"]-df["start_time"]
-
         indx = self.config["keys"]+["region"]
         indx.remove("repetitions")
-
         df = df.groupby(indx).elaped_time.apply(np.mean).reset_index()
-
         if method == "maxthread":
             df["elaped_time"] = df["elaped_time"].apply(np.max)
-
         if set_index:
             df = df.set_index(indx)
         return df
 
     def energy(self, method: str = "mean", set_index: bool = False,
                      transform: Callable = None):
-        """
-            Calculates the average of sampled sensor data and averages between
+        """ Calculates the average of sampled sensor data and averages between
             runs
-
             :param method: mean, timediff
             :param setindex: set dataframe index
             :param transform: applied to each sensor data to create the rows
-            :return: dataframe
-        """
+            :return: dataframe      """
         import pandas as pd
         if not "extras" in self.config["data_descriptor"] or \
             not "sensors" in self.config["data_descriptor"]["extras"]:
@@ -240,7 +195,6 @@ class PascalData:
             if set_index:
                 df_general = df_general.set_index(indx)
             return df_general
-
         df_general = self.dataframe_generic()
         df_sensor = self.dataframe_group("sensors",transform=transform)
         df_sensor = df_sensor[df_sensor["sensors"].str.contains("rapl") |
@@ -269,7 +223,6 @@ class PascalData:
         df_sensor = pd.pivot_table(df_sensor, index=indx,
                                    columns="sensors", values="info",
                                    aggfunc=np.min).reset_index()
-
         # compute the mean time between runs
         df_general = df_general.groupby(indx).mean().reset_index()
         # merge with table with general data
@@ -289,16 +242,12 @@ class PascalData:
         return df_sensor
 
     def times(self, set_index: bool= False):
-        """
-        Return DataArray (xarray) with resume of all tests.
-
+        """ Return DataArray (xarray) with resume of all tests.
         DataArray format
             dims(frequency, size, cores)
             data=numpy array with median of measures times.
-
         :param setindex: set dataframe index
-        :return: DataArray with median of measures times.
-        """
+        :return: DataArray with median of measures times."""
         indx = self.config["data_descriptor"]["keys"].copy()
         indx.remove("repetitions")
         df_general = self.dataframe_generic()
@@ -308,40 +257,29 @@ class PascalData:
         return df_general
 
     def threads(self):
-        """
-        Return a xArray DataArray with resume of all threads,
+        """Return a xArray DataArray with resume of all threads,
         grouped by frequency, input size and number of cores.
-
-        :return: dataframe with median of measures times.
-        """
+        :return: dataframe with median of measures times. """
         import xarray as xr
         data = xr.DataArray([])
         return data
 
     def speedups(self):
-        """
-        Return DataArray (xarray) with resume of all speedups.
-
+        """Return DataArray (xarray) with resume of all speedups.
         DataArray format
             dims(frequency, size, cores)
             data=numpy array with calculated speedups.
-
-        :return: DataArray with calculated speedups.
-        """
+        :return: DataArray with calculated speedups."""
         import xarray as xr
         data = xr.DataArray([])
         return data
 
     def efficiency(self):
-        """
-        Return DataArray (xarray) with resume of all efficiencies.
-
+        """Return DataArray (xarray) with resume of all efficiencies.
         DataArray format
             dims(frequency, size, cores)
             data=numpy array with calculated efficiencies.
-
-        :return: DataArray with calculated efficiencies.
-        """
+        :return: DataArray with calculated efficiencies."""
         speedups = self.speedups()
         xefficency = speedups/speedups.coords["cores"]
         xefficency.attrs = speedups.attrs
@@ -350,20 +288,16 @@ class PascalData:
     @staticmethod
     def plot2D(data, title: str = "", 
                 greycolor: bool = False, filename: str = ""):
-        """
-        Plot the 2D (Speedup x Cores) lines graph.
-
+        """ Plot the 2D (Speedup x Cores) lines graph.
         :param data: DataArray to plot, generate by speedups(),
                      times() or efficiency().
         :param title: Plot Title.
         :param greycolor: If set color of graph to grey colormap.
         :param filename: File name to save figure (eps format).
-        :return:
-        """
+        :return: """
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib import ticker
-
         if not data.size == 0:
             if len(data.dims) != 2:
                 print("Error: Do not possible plot 3-dimensions data")
@@ -412,9 +346,7 @@ class PascalData:
     @staticmethod
     def plot3D(data, slidername: str = None, title: str = "Speedup Surface",
                zlabel: str = "speedup", greycolor: bool = False, filename: str = ""):
-        """
-        Plot the 3D (Speedup x cores x input size) surface.
-
+        """Plot the 3D (Speedup x cores x input size) surface.
         :param data: DataArray to plot, generate by speedups(),
                      times() or efficiency().
         :param slidername: name of dimension of DataArray to use on slider.
@@ -422,9 +354,7 @@ class PascalData:
         :param zlabel: Z Axis Label.
         :param greycolor: If set color of graph to grey colormap.
         :param filename: File name to save figure (eps format).
-        :return:
-        """
-
+        :return: """
         try:
             from mpl_toolkits.mplot3d import Axes3D
         except ImportError:
@@ -435,7 +365,6 @@ class PascalData:
         from matplotlib.widgets import Slider, RadioButtons
         from matplotlib import cm
         from matplotlib import ticker
-
         def update_plot3D(idx):
             ax.clear()
             if idx is None:
@@ -473,7 +402,6 @@ class PascalData:
             ax.set_zlabel(zlabel)
             ax.set_zlim(0, 1.10 * zmax)
             fig.canvas.draw_idle()
-
         fig = plt.figure()
         ax = fig.gca(projection="3d")
         plt.title(title)
@@ -481,7 +409,6 @@ class PascalData:
             colormap = cm.Greys
         else:
             colormap = cm.coolwarm
-
         if not data.size == 0:
             if len(data.dims) == 2:
                 idx = None
