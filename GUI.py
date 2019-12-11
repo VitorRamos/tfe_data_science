@@ -26,7 +26,7 @@ class Graph:
         """ Create a empty object and initialize attributes."""
         #self.fig=Figure(figsize=(12,8))
         self.fig = Figure(figsize=(12,8), dpi=50)
-        self.ax1 = self.fig.add_subplot(111).plot(data["frequency"],data["cores"])
+        self.ax1 = self.fig.add_subplot(111).plot(data["frequency"],data["total_time"])
     #def read(self):
         #wine_reviews=pd.read_csv("d:\Profiles\igauthier\Downloads/beatsdataset.csv")
         #plot([1,2,3,4],[1,4,9,16])
@@ -36,12 +36,17 @@ class Graph:
         #show()
 
     def sliders_on_changed(self,val):
+        """Display a sliding bar controlling a variable.
+        :param val: The variable to modify"""
         freq=self.sfreq.val
         l,=plt.plot(np.arange(0.0, 1.0, 0.001),5*np.sin(2*np.pi*3*np.arange(0.0, 1.0, 0.001)),lw=2)
         l.set_ydata(2*np.pi*freq)
         a=self.fig.canvas.draw_idle()
 
     def simpleGraphe(self,master,data):
+        """The graph to draw.
+        :param master: The window where to draw the graph.
+        :param data: The data to draw."""
         canvas=FigureCanvasTkAgg(self.fig,master=master)
         #canvas.columnconfigure(1, pad=3)
         canvas.get_tk_widget().pack(side="right",padx=10)
@@ -54,6 +59,7 @@ class Graph:
         self.sfreq.on_changed(self.sliders_on_changed)
 
     def twoGraphes(self):
+        """Creating to graph to compare them."""
         plt.subplots(131)
         ax=self.fig.add_axes([0.1,0.1,0.8,0.8])
         plt.subplots(132)
@@ -76,7 +82,7 @@ class MainWindow:
             quit()
             ok()"""
 
-    def __init__(self,master,setup,graphe,data):
+    def __init__(self,master,setup,graphe,data,conf):
         """ Create a empty object and initialize attributes and GUI with graphe and initGUI methods.
         :param data: Data to draw"""
         self.setup=setup
@@ -84,9 +90,12 @@ class MainWindow:
         """self.graphe.createWidgets()"""
         self.master=master
         """self.frame=Frame(self.master)"""
+        self.confi=conf
         self.initGUI(data)
     
     def initGUI(self,data):
+        """Creation of the different object.
+        :param data: Data to display"""
         RWidth=self.master.winfo_screenwidth()
         RHeight=self.master.winfo_screenheight()
         self.master.geometry(str(RWidth)+"x"+str(RHeight))
@@ -99,11 +108,15 @@ class MainWindow:
         self.canvas1.config(bg=self.setup._colorframe,bd=0)"""
     
     def graphes(self,data):
+        """Creation of the graph.
+        :param data: Data to draw"""
+        var=[]
         self.graphe.simpleGraphe(self.master,data)
-        for i in len(data["data_descriptor"]):
-            var[i]=IntVar()
-            Checkbutton(self.master,text=data["data_descriptor"][i],variable=var[i],foreground='white',
-                        bg='#4f81bd',anchor='w',justify='left').place(x=40+i,y=55+i)
+        print(len(self.confi["data_descriptor"]))
+        #for i in len(self.confi["data_descriptor"]):
+         #   var[i]=IntVar()
+          #  Checkbutton(self.master,text=data["data_descriptor"][i],variable=var[i],foreground='white',
+           #             bg='#4f81bd',anchor='w',justify='left').place(x=40+i,y=55+i)
         var1=IntVar()
         Checkbutton(self.master,text='Frequence',variable=var1,foreground='white',
                     bg='#4f81bd',anchor='w',justify='left').place(x=40,y=55)
