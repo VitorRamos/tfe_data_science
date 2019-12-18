@@ -178,8 +178,8 @@ class DataValueError(RestrictedClassError):
         #This line means that this class is a child of the 'RestrictedClassError' 
         #object so we can return correctly the error.
         super(DataValueError, self).__init__((''.join(msg), args))
-class MixinIngredient(object):
-    pass
+#class MixinIngredient(object):
+ #   pass
 class MetaMixinBowl(type):
     def mixin_first(self, mixin_class):
         if not mixin_class in self.__bases__:
@@ -206,7 +206,7 @@ class RestrictionError(ValueError):
         #constructor.
         ValueError.__init__(self, arg0)
 class __PropertyRestriction__(MixinBowl):
-    """ abstract base class for restrictions on property values """
+    """Abstract base class for restrictions on property values """
     def __init__(self):
         #constructor.
         pass
@@ -242,6 +242,7 @@ class __PropertyRestriction__(MixinBowl):
     def __repr__(self):
         return "Generic Restriction"
 class __PropertyRestrictionAnd__(__PropertyRestriction__):
+    """Restriction on the operator and"""
     def __init__(self, restriction1, restriction2):
         #constructor.
         self.restriction1 = restriction1
@@ -251,6 +252,7 @@ class __PropertyRestrictionAnd__(__PropertyRestriction__):
     def __repr__(self):
         return "(%s and %s)" % (self.restriction1, self.restriction2)
 class __PropertyRestrictionOr__(__PropertyRestriction__):
+    """Restriction on the operator or"""
     def __init__(self, restriction1, restriction2):
         #constructor
         self.restriction1 = restriction1
@@ -260,6 +262,7 @@ class __PropertyRestrictionOr__(__PropertyRestriction__):
     def __repr__(self):
         return "(%s or %s)" % (self.restriction1, self.restriction2)
 class __PropertyRestrictionNot__(__PropertyRestriction__):
+    """Restriction on the operator not"""
     def __init__(self, restriction):
         #constructor
         self.restriction = restriction
@@ -291,6 +294,7 @@ class RestrictType(__PropertyRestriction__):
         return "Type Restriction:" + ",".join([T.__name__ for T in self.allowed_types])
 RESTRICT_STRING = RestrictType(str)
 class IpcoreException(Exception):
+    """Throw an error"""
     def __init__(self, Msg):
         #constructor
         super(IpcoreException, self).__init__(Msg)
@@ -305,7 +309,7 @@ class IpcorePropertyDescriptorException(IpcoreAttributeException):
         #construction
         super(IpcorePropertyDescriptorException, self).__init__(Msg)
 class __BasePropertyDescriptor__(object):
-    """ base class for property descriptors """
+    """Base class for property descriptors """
     __allowed_keyword_arguments__ = ["required"]
     def __init__(self, **kwargs):
         #constructor
@@ -326,9 +330,10 @@ class __BasePropertyDescriptor__(object):
     def validate_on_binding(self, host_cls, name):
         return True
 class ProcessorException(IpcoreException):
+    """Error on a property"""
     pass
 class PropertyProcessor(object):
-    """ processes a value before it is passed as a property """
+    """Processes a value before it is passed as a property """
     def __init__(self):
         #constructor
         pass
@@ -351,7 +356,7 @@ class PropertyProcessor(object):
     def __repr__(self):
         return "<Property Processor >"
 class __CompoundPropertyProcessor__(PropertyProcessor):
-    """ compound property processor class """
+    """Compound property processor class """
     def __init__(self, processors=[]):
         #constructor
         self.__sub_processors = processors
@@ -384,7 +389,7 @@ class __CompoundPropertyProcessor__(PropertyProcessor):
         S += ">"
         return S
 class RestrictNothing(__PropertyRestriction__):
-    """ no restriction on the property value """
+    """No restriction on the property value """
     def __add__(self, other):
         if isinstance(other, __PropertyRestriction__):
             return copy.copy(other)
@@ -396,6 +401,7 @@ class RestrictNothing(__PropertyRestriction__):
     def __repr__(self):
         return "No Restriction"
 class DefinitionProperty(__BasePropertyDescriptor__):
+    """Definition of the properties"""
     __allowed_keyword_arguments__ = ["required", "default", "locked", 
                                      "preprocess", "allow_none", 
                                      "fdef_name", "restriction"]
@@ -568,12 +574,12 @@ class DefinitionProperty(__BasePropertyDescriptor__):
         #if (hasattr(self, "default")) and (self.default is None) and \
         #(not hasattr(self, "allow_none") or not self.allow_none):
          #   self.allow_none = True
-class PropertyDescriptor(DefinitionProperty):
-    pass
+#class PropertyDescriptor(DefinitionProperty):
+    #pass
     # now just a placeholder for backwards compatibility
-class RestrictedProperty(PropertyDescriptor):
-    pass
+#class RestrictedProperty(PropertyDescriptor):
+ #   pass
     #now just a placeholder for backwards compatibility
-def StringProperty(internal_member_name=None, restriction=None, **kwargs):
-    R = RESTRICT_STRING & restriction
-    return RestrictedProperty(internal_member_name, restriction=R, **kwargs)
+#def StringProperty(internal_member_name=None, restriction=None, **kwargs):
+  #  R = RESTRICT_STRING & restriction
+   # return RestrictedProperty(internal_member_name, restriction=R, **kwargs)

@@ -11,15 +11,15 @@ def main():
     this_folder=os.path.dirname(os.path.abspath(this_file))
     setup=setupFile()
     data=readJson()
-    data.read()
+    datatemp=data.read()
     #print(data.res)
     datas=data.res[(data.res["cores"] == 16)&(data.res["input"]==5)]
     graphe=Graph(datas)
     """graphe.read()"""
-    setup.read(this_folder+os.sep+file)
-    setup._colorframe='#4f81bd'
-    root.configure(bg=setup._colorframe)
-    MainWindow(root,setup,graphe,datas,data.conf)
+    setupsoft=setup.read(this_folder+os.sep+file)
+    setup.colorframe='#4f81bd'
+    root.configure(bg=setup.colorframe)
+    mainwindow=MainWindow(root,setup,graphe,datas,data.conf)
     root.mainloop()
 
 class setupFile():
@@ -32,8 +32,8 @@ class setupFile():
     
     def __init__(self):
         """ Create a empty object and initialize attributes."""
-        self._colorbutton='#ffffff'
-        self._colorframe='#ffffff'
+        self.__colorbutton='#ffffff'
+        self.__colorframe='#ffffff'
     
     def read(self,filename):
         """Read the file with the name given.
@@ -52,9 +52,9 @@ class setupFile():
                         if filetype=='interface_setup':
                             GoodFile=True
                     if 'colorframe'in x:
-                        self._colorframe=x[6]
+                        self.__colorframe=x[6]
                     if 'colorbutton'in x:
-                        self._colorbutton=x[6]
+                        self.__colorbutton=x[6]
                 elif (filetype!='')and(filetype!='interface_setup'):
                     return('interface_setup')
                     break
