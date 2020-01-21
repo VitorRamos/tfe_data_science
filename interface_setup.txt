@@ -1,9 +1,11 @@
-<header>
-    <filetype>interface_setup</filetype>
-    <versiondate></versiondate>
-</header>
-<body>
-    <colorframe>'#4f81bd'</colorframe>
-    <colorbutton>'#95b3d7'</colorbutton>
-    <colorflow>'#00b050'</colorflow>
-</body>
+<data>
+	<header>
+		<filetype name="filetype">interface_setup</filetype>
+		<versiondate name="versiondate"></versiondate>
+	</header>
+	<body>
+		<colorframe name="colorframe">#4f81bd</colorframe>
+		<colorbutton name="colorbutton">#95b3d7</colorbutton>
+		<colorflow name="colorflow">#00b050</colorflow>
+	</body>
+</data>
