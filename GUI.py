@@ -2,7 +2,7 @@
 import pandas as pd
 import inspect,os,matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
+#import numpy as np
 matplotlib.use('TkAgg')
 from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -22,10 +22,18 @@ class Graph:
             simpleGraphe()
             twoGraphes()"""
 
-    def __init__(self,data):
+    def __init__(self,data,master):
         """ Create a empty object and initialize attributes."""
+        self.__master=master
+        self.__data=data
         self.__fig = Figure(figsize=(12,8), dpi=50)
-        self.__ax1,  = self.__fig.add_subplot(111).plot(data["frequency"],data["total_time"])
+        self.__canvas=FigureCanvasTkAgg(self.__fig,master=self.__master)
+        self.__data_disp=data[(data["frequency"]==1200000)]
+        self.__canvas.get_tk_widget().pack(side="right",padx=10)
+        self.__ax1,  = self.__fig.add_subplot(111).plot(self.__data_disp["input"],
+                                    self.__data_disp["total_time"])
+        self.__graph=self.simpleGraphe(data)
+
     #def read(self):
         #wine_reviews=pd.read_csv("d:\Profiles\igauthier\Downloads/beatsdataset.csv")
         #plot([1,2,3,4],[1,4,9,16])
@@ -37,25 +45,29 @@ class Graph:
     def sliders_on_changed(self,val):
         """Display a sliding bar controlling a variable.
         :param val: The variable to modify"""
-        self.__freq=self.__sfreq.val
-        #l,=plt.plot(np.arange(0.0, 1.0, 0.001),5*np.sin(2*np.pi*3*np.arange(0.0, 1.0, 0.001)),lw=2)
-        self.__ax1.set_xdata(2*np.pi*self.__freq)
+        self.__freq=self.sfreq.val
+        #self.__ax1.set_xdata(2*self.__freq)
+        self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)]
+        self.__ax1.set_ydata(2*self.__data_disp["total_time"])
         self.__a=self.__fig.canvas.draw_idle()
 
-    def simpleGraphe(self,master,data):
+    def simpleGraphe(self,data):
         """The graph to draw.
         :param master: The window where to draw the graph.
         :param data: The data to draw."""
-        self.__canvas=FigureCanvasTkAgg(self.__fig,master=master)
         #canvas.columnconfigure(1, pad=3)
-        self.__canvas.get_tk_widget().pack(side="right",padx=10)
-        self.__graphe=plt.subplots_adjust(bottom=0.25)
+        #self.__graphe=plt.subplots_adjust(bottom=0.25)
         #plt.add_subplot(111).plot(data["frequency"],data["cores"])
-        self.__canvas.draw()
+        #self.__canvas.draw()
         self.__axcolor = 'lightgoldenrodyellow'
         self.__ax=self.__fig.add_axes([0.25, 0.05, 0.65, 0.03], facecolor=self.__axcolor)
-        self.__sfreq=Slider(self.__ax,'Freq',100000, 300000, valinit=100000)
-        self.__sfreq.on_changed(self.sliders_on_changed)
+        self.sfreq=Slider(self.__ax,'Freq',1200000, 2300000, valinit=1200000,valstep=100000)
+        self.sfreq.on_changed(self.sliders_on_changed)
+        print(self.sfreq.val)
+        self.__data_disp=data[(data["frequency"]==self.sfreq)]
+        print(self.__data_disp["total_time"])
+        #self.__canvas.show()
+        #self.__fig.pause(0.01)
 
     @property
     def twoGraphes(self):
@@ -82,27 +94,33 @@ class MainWindow:
             quit()
             ok()"""
 
-    def __init__(self,master,setup,graphe,data,conf):
+    def __init__(self,master,setup,data,conf):
         """ Create a empty object and initialize attributes and GUI with graphe and initGUI methods.
         :param data: Data to draw"""
         self.__setup=setup
-        self.__graphe=graphe
-        """self.graphe.createWidgets()"""
+        """self.__graphe=Graph(datas)
+        self.graphe.createWidgets()"""
         self.__master=master
         """self.frame=Frame(self.master)"""
         self.__confi=conf
         self.initGUI(data)
+
+    def close_window(self):
+        global running
+        running = False
+        print ("Window closed")
     
     def initGUI(self,data):
         """Creation of the different object.
         :param data: Data to display"""
+        self.__master.protocol("WM_DELETE_WINDOW", self.close_window())
         self.__RWidth=self.__master.winfo_screenwidth()
         self.__RHeight=self.__master.winfo_screenheight()
         self.__master.geometry(str(self.__RWidth)+"x"+str(self.__RHeight))
         self.__master.title('Test')
         self.__master.configure(bg=self.__setup.colorframe)
+        self.MenuBar()
         self.graphes(data)
-        self.MenuBar
         self.__closebutton = Button(self.__master, text='X', command=self.quit)
         """self.canvas1=tix.Canvas(self.master, width=390, height=600)
         self.canvas1.place(x=230,y=40)
@@ -112,7 +130,7 @@ class MainWindow:
         """Creation of the graph.
         :param data: Data to draw"""
         var=[]
-        self.__graph=self.__graphe.simpleGraphe(self.__master,data)
+        """self.__graph=self.__graphe.simpleGraphe(self.__master,data)"""
         self.__label_1=Label(self.__master,text='VARIABLES LIST',justify=LEFT).pack(expand=0,anchor='w')
         for i in range (len(self.__confi["data_descriptor"])):
             var.append(IntVar(value=1))

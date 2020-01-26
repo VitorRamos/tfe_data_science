@@ -1,8 +1,9 @@
 import inspect,os,matplotlib
 import xml.etree.ElementTree as ET
 from pascaldata import PascalData
-from GUI import Graph
-from GUI import MainWindow
+"""from GUI import Graph
+from Data import Treatment"""
+from GUI import MainWindow, Graph
 from tkinter import tix
 root=tix.Tk()
 
@@ -10,12 +11,12 @@ def main():
     setup=setupFile()
     data=readJson()
     datatemp=data.read
-    datas=data.res[(data.res["cores"] == 16)&(data.res["input"]==5)]
-    graphe=Graph(datas)
-    """graphe.read()"""
+    datas=data.res[(data.res["cores"] == 16)]
+    """treat=Treatment()"""
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
-    mainwindow=MainWindow(root,setup,graphe,datas,data.conf)
+    mainwindow=MainWindow(root,setup,datas,data.conf)
+    graphe=Graph(datas,root)
     root.mainloop()
 
 class setupFile():
