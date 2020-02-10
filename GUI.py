@@ -22,17 +22,19 @@ class Graph:
             simpleGraphe()
             twoGraphes()"""
 
-    def __init__(self,data,master):
+    def __init__(self,data,master, max, min):
         """ Create a empty object and initialize attributes."""
         self.__master=master
         self.__data=data
         self.__fig = Figure(figsize=(12,8), dpi=50)
         self.__canvas=FigureCanvasTkAgg(self.__fig,master=self.__master)
         self.__data_disp=data[(data["frequency"]==1200000)]
-        self.__canvas.get_tk_widget().pack(side="right",padx=10)
+        self.__canvas.get_tk_widget().place(x=650,y=10)
+        self.__max=max
+        self.__min=min
         self.__ax1,  = self.__fig.add_subplot(111).plot(self.__data_disp["input"],
                                     self.__data_disp["total_time"])
-        self.__graph=self.simpleGraphe(data)
+        self.__graph=self.simpleGraphe(data)   
 
     #def read(self):
         #wine_reviews=pd.read_csv("d:\Profiles\igauthier\Downloads/beatsdataset.csv")
@@ -61,7 +63,8 @@ class Graph:
         #self.__canvas.draw()
         self.__axcolor = 'lightgoldenrodyellow'
         self.__ax=self.__fig.add_axes([0.25, 0.05, 0.65, 0.03], facecolor=self.__axcolor)
-        self.sfreq=Slider(self.__ax,'Freq',1200000, 2300000, valinit=1200000,valstep=100000)
+        self.sfreq=Slider(self.__ax,'Freq',self.__min["frequency"],self.__max["frequency"], 
+                                valinit=self.__min["frequency"],valstep=100000)
         self.sfreq.on_changed(self.sliders_on_changed)
         print(self.sfreq.val)
         self.__data_disp=data[(data["frequency"]==self.sfreq)]
@@ -94,7 +97,7 @@ class MainWindow:
             quit()
             ok()"""
 
-    def __init__(self,master,setup,data,conf):
+    def __init__(self,master,setup,data,conf, max, min, median):
         """ Create a empty object and initialize attributes and GUI with graphe and initGUI methods.
         :param data: Data to draw"""
         self.__setup=setup
@@ -103,12 +106,14 @@ class MainWindow:
         self.__master=master
         """self.frame=Frame(self.master)"""
         self.__confi=conf
+        self.__max=max
+        self.__min=min
+        self.__median=median
         self.initGUI(data)
 
     def close_window(self):
         global running
         running = False
-        print ("Window closed")
     
     def initGUI(self,data):
         """Creation of the different object.
@@ -140,7 +145,27 @@ class MainWindow:
         self.__checkbutton_2=Checkbutton(self.__master,text=self.__confi["data_descriptor"]["values"],
                     variable=lambda index=i:var[index],foreground='white',onvalue=True,offvalue=False,
                     bg='#4f81bd',justify=LEFT).pack(expand=0,anchor='w')
-    
+        self.__label_2=Label(self.__master,text='Cores',justify=LEFT).place(x=650,y=410)
+        self.__label_3=Label(self.__master,text='Minimum : '+str(self.__min["cores"]),justify=LEFT).place(x=650,
+                                    y=430)
+        self.__label_4=Label(self.__master,text='Maximum : '+str(self.__max["cores"]),justify=LEFT).place(x=650,
+                                    y=450)
+        self.__label_5=Label(self.__master,text='Frequency',justify=LEFT).place(x=650,y=470)
+        self.__label_6=Label(self.__master,text='Minimum : '+str(self.__min["frequency"]),
+                                    justify=LEFT).place(x=650,y=490)
+        self.__label_7=Label(self.__master,text='Maximum : '+str(self.__max["frequency"]),
+                                    justify=LEFT).place(x=650,y=510)
+        self.__label_8=Label(self.__master,text='Input',justify=LEFT).place(x=650,y=530)
+        self.__label_9=Label(self.__master,text='Minimum : '+str(self.__min["input"]),justify=LEFT).place(x=650,
+                                    y=550)
+        self.__label_10=Label(self.__master,text='Maximum : '+str(self.__max["input"]),justify=LEFT).place(x=650,
+                                    y=570)
+        #self.__label_11=Label(self.__master,text='Repetitions',justify=LEFT).pack(expand=0,anchor='w')
+        #self.__label_12=Label(self.__master,text='Minimum : '+str(self.__min["repetitions"]),
+         #                           justify=LEFT).pack(expand=0,anchor='w')
+        #self.__label_13=Label(self.__master,text='Maximum : '+str(self.__max["repetitions"]),
+          #                          justify=LEFT).pack(expand=0,anchor='w')
+                                    
     def MenuBar(self):
         """This method is called by the initialisation of the interface to 
         create a bar with the different menu."""

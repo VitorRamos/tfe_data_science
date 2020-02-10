@@ -14,8 +14,16 @@ class Treatment:
     def __init__(self,data):
         self.__data=data
     def getMax(self):
-        print(self.__data.max('frequency'))
+        maximum=self.__data.max()
+        print(maximum["frequency"])
+        return maximum
     def getMin(self):
-        return
+        minimum=self.__data.min()
+        print(minimum["frequency"])
+        return minimum
     def getMedian(self):
-        return
+        print ("bb")
+        print(self.__data)
+        median=self.__data.median()
+        print(median)
+        return median

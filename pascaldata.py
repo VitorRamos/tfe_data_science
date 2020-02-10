@@ -264,8 +264,8 @@ class PascalData:
         indx.remove("sensors")
         sensors = df_sensor["sensors"].unique()
         df_sensor = pd.pivot_table(df_sensor, index=indx,
-                                   columns="sensors", values="info",
-                                   aggfunc=np.min).reset_index()
+                        columns="sensors", values="info",
+                        aggfunc=np.min).reset_index()
 
         # compute the mean time between runs
         df_general = df_general.groupby(indx).mean().reset_index()

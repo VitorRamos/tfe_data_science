@@ -1,8 +1,7 @@
 import inspect,os,matplotlib
 import xml.etree.ElementTree as ET
 from pascaldata import PascalData
-"""from GUI import Graph
-from Data import Treatment"""
+from Data import Treatment
 from GUI import MainWindow, Graph
 from tkinter import tix
 root=tix.Tk()
@@ -11,12 +10,23 @@ def main():
     setup=setupFile()
     data=readJson()
     datatemp=data.read
-    datas=data.res[(data.res["cores"] == 16)]
-    """treat=Treatment()"""
+    print (data.conf["data_descriptor"]["extras"]["sensors"]["values"][0])
+    print("aa")
+    print(data.res.keys())#["total_time"]
+    datas=data.sens[(data.sens["sensors"].str.contains("ipmi"))]
+    print(datas)
+    datas2=data.res[(data.res["cores"] == 16)]
+    treat=Treatment(datas)
+    treat2=Treatment(datas2)
+    maxi=treat2.getMax()
+    mini=treat2.getMin()
+    moy=treat.getMedian()
+    #PascalData.dataframe_group(moy,"sensors")
+    #moy=10
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
-    mainwindow=MainWindow(root,setup,datas,data.conf)
-    graphe=Graph(datas,root)
+    mainwindow=MainWindow(root,setup,datas,data.conf,maxi, mini,moy)
+    graphe=Graph(datas2,root,maxi,mini)
     root.mainloop()
 
 class setupFile():
@@ -70,6 +80,10 @@ class readJson():
         """Read the file containing the data to display"""
         self.__result=PascalData(self.__input_file)
         self.conf=self.__result.config
+        test=self.__result.dataframe_generic()
+        self.sens=self.__result.dataframe_group("sensors")
+        print(self.__result.energy(method="mean"))
+        print("abcdefghijklmnopqrstuvwxyz")
         self.__datas=self.__result.times()
         self.res=self.__datas.astype(float)
 
