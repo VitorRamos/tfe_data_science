@@ -10,23 +10,37 @@ def main():
     setup=setupFile()
     data=readJson()
     datatemp=data.read
-    print (data.conf["data_descriptor"]["extras"]["sensors"]["values"][0])
-    print("aa")
-    print(data.res.keys())#["total_time"]
+    #print (data.conf["data_descriptor"]["extras"]["sensors"]["values"][0])
+    #print("aa")
+    #print(data.res.keys())#["total_time"]
     datas=data.sens[(data.sens["sensors"].str.contains("ipmi"))]
-    print(datas)
+    #print("energy")
+    #print(data.resu)
+    #print(datas)
     datas2=data.res[(data.res["cores"] == 16)]
+    datas3=data.resu
     treat=Treatment(datas)
     treat2=Treatment(datas2)
+    treat3=Treatment(datas3)
     maxi=treat2.getMax()
+    maxim=treat3.getMax()
+    datas3=treat3.init_type()
+    #print(maxi)
     mini=treat2.getMin()
-    moy=treat.getMedian()
+    minim=treat3.getMin()
+    #print(minim)
+    med=treat.getMedian()
+    #print('dd')
+    med2=treat3.getMedian()
+    #print(med2)
+    #print('ee')
+    moy=treat3.getMean()
+    #print(moy)
     #PascalData.dataframe_group(moy,"sensors")
     #moy=10
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
-    mainwindow=MainWindow(root,setup,datas,data.conf,maxi, mini,moy)
-    graphe=Graph(datas2,root,maxi,mini)
+    mainwindow=MainWindow(root,setup,datas3,datas,data.conf,maxim, minim,med2,moy)
     root.mainloop()
 
 class setupFile():
@@ -82,8 +96,7 @@ class readJson():
         self.conf=self.__result.config
         test=self.__result.dataframe_generic()
         self.sens=self.__result.dataframe_group("sensors")
-        print(self.__result.energy(method="mean"))
-        print("abcdefghijklmnopqrstuvwxyz")
+        self.resu=self.__result.energy("mean")
         self.__datas=self.__result.times()
         self.res=self.__datas.astype(float)
 
