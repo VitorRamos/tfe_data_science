@@ -22,39 +22,48 @@ class Graph:
             simpleGraphe()
             twoGraphes()"""
 
-    def __init__(self,data,master, maxi, mini,median):
+    def __init__(self,data,master,choice):
         """ Create a empty object and initialize attributes."""
         self.__master=master
-        self.__data=data
+        self.__data=data.getData()
         self.__fig = Figure(figsize=(12,7), dpi=50)
         self.__canvas=FigureCanvasTkAgg(self.__fig,master=self.__master)
-        print("data ini")
+        """print("data ini")
         #self.__data= self.__data.astype(int)
         #print(self.__data["frequency"].dtype)
         print(self.__data["frequency"])
-        #self.__data_disp=self.__data["ipmi_power"]
+        #self.__data_disp=self.__data["ipmi_power"]"""
         self.__data_disp= self.__data#[self.__data["frequency"]==1200000]
-        print("data test")
-        print(data.dtypes)
+        """print("data test")
+        print(data.dtypes)"""
         self.__canvas.get_tk_widget().place(x=650,y=10)
-        self.__max=maxi
-        self.__min=mini
-        self.__median=median
-        print(self.__data_disp.dtypes)
+        self.__max=data.getMax()
+        self.__min=data.getMin()
+        self.__median=data.getMedianEvolution()
+        """print(self.__data_disp.dtypes)
         print(self.__data_disp["ipmi_power"].shape)
         print(self.__data_disp["ipmi_energy"].shape)
-        self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--') 
-        self.__ax1, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
-        #self.__axis= self.__fig.add_subplot(111)
-        """#N=1428
-        #ind = np.arange(N)
-        #width = 0.35
-        #self.__axis.bar(ind,self.__data_disp["ipmi_energy"],width)
         print('median')
+        print(self.__median)
+        self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--')""" 
+        if choice == 'L':
+            self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--') 
+            self.__axis, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
+        if choice == 'B':    
+            self.__axis= self.__fig.add_subplot(111)
+            N=1428
+            ind = np.arange(N)
+            width = 0.35
+            self.__axis.bar(ind,self.__data_disp["ipmi_energy"],width)
+        """print('median')
         print(self.__median)"""
-        #self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__median,c='red', marker = "o")
-        #self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"], marker = "x")
-        #plt.show()
+        if choice == 'P':
+            print('ah')
+            self.__axis= self.__fig.add_subplot(111)
+            self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__median,c='red', marker = "o")
+            self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"], marker = "x")
+            #plt.show()
+        print('ouf')
         self.__graph=self.simpleGraphe(data)
         
     #def read(self):
@@ -81,10 +90,8 @@ class Graph:
         #&(self.__data["cores"]==self.__core)]
         print("data")
         print(self.__data_disp)
-        self.__ax1.set_xdata(self.__data_disp["ipmi_energy"])
-        self.__ax1.set_ydata(self.__data_disp["ipmi_power"])
-        #self.__axis.set_xdata(self.__data_disp["ipmi_energy"])
-        #self.__axis.set_ydata(self.__data_disp["ipmi_power"])
+        self.__axis.set_xdata(self.__data_disp["ipmi_energy"])
+        self.__axis.set_ydata(self.__data_disp["ipmi_power"])
         print(self.__data_disp.dtypes)
         print(self.__data_disp["ipmi_power"].shape)
         print(self.__data_disp["ipmi_energy"].shape)
@@ -136,6 +143,24 @@ class Graph:
         self.sinput.reset()
         self.__graphini=self.simpleGraphe(self.__data)
 
+    def updateType(self,choice):
+        self.__fig.clf()
+        if choice == 'L':
+            self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--') 
+            self.__axis, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
+        if choice == 'B':    
+            self.__axis= self.__fig.add_subplot(111)
+            N=1428
+            ind = np.arange(N)
+            width = 0.35
+            self.__axis.bar(ind,self.__data_disp["ipmi_energy"],width)
+        if choice == 'P':
+            self.__axis= self.__fig.add_subplot(111)
+            self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__median,c='red', marker = "o")
+            self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"], marker = "x")
+        print(self.__data)
+        self.__graph=self.simpleGraphe(self.__data)
+
 class MainWindow:
     """ Class that read the setup file
         Attributes
@@ -148,20 +173,20 @@ class MainWindow:
             quit()
             ok()"""
 
-    def __init__(self,master,setup,datas,data,conf, maxi, mini, median,moy):
+    def __init__(self,master,setup,datas,data,conf):
         """ Create a empty object and initialize attributes and GUI with graphe and initGUI methods.
         :param data: Data to draw"""
         self.__setup=setup
         #print("start")
         #print(datas["ipmi_power"])
-        self.__graphe=Graph(datas,master,maxi,mini,median)
         """self.graphe.createWidgets()"""
         self.__master=master
         """self.frame=Frame(self.master)"""
         self.__confi=conf
-        self.__max=maxi
-        self.__min=mini
-        self.__median=median
+        self.__max=datas.getMax()
+        self.__min=datas.getMin()
+        self.__median=datas.getMedian()
+        self.__mean=datas.getMean()
         self.__label_2=None
         self.__label_3=None
         self.__label_4=None
@@ -171,6 +196,7 @@ class MainWindow:
         self.__label_8=None
         self.__label_9=None
         self.__label_10=None
+        self.__choice='C'
         self.initGUI(datas)
         
     def close_window(self):
@@ -187,7 +213,9 @@ class MainWindow:
         self.__master.title('Test')
         self.__master.configure(bg=self.__setup.colorframe)
         self.MenuBar()
-        self.graphes(data)
+        choice=self.typeGraph()
+        self.__graphe=Graph(data,self.__master,'L')
+        self.graphes(data.getData())
         self.__closebutton = Button(self.__master, text='X', command=self.quit)
         """self.canvas1=tix.Canvas(self.master, width=390, height=600)
         self.canvas1.place(x=230,y=40)
@@ -307,5 +335,45 @@ class MainWindow:
         self.__name= filedialog.askopenfilename()
         print(self.__name)
 
-    #def ask_quit(self):
-     #   self.quit()
+    def uncheckall(self,checktest,cbs):
+        print(checktest)
+        i=1
+        for cb in cbs:
+            print('i')
+            print(i)
+            if i == checktest:
+                print('top')
+                cb.select()
+            else:
+                print('ouf')
+                cb.deselect()
+            i=i+1
+        print('test')
+        print(checktest)
+        if checktest == 2 :
+            self.__choice = 'B'
+        else :
+            if checktest == 3 :
+                self.__choice = 'P'
+            else:
+                self.__choice = 'L'
+        print(self.__choice)
+        self.updateGraph()
+
+    def updateGraph(self):
+        self.__graphe.updateType(self.__choice)
+        
+    def typeGraph(self):
+        var1=BooleanVar()
+        var2=BooleanVar()
+        var3=BooleanVar()
+        self.__checkbutton_10=Checkbutton(self.__master,text='Lignes',variable=var1,onvalue=1,offvalue=0,bg='#4f81bd',anchor='w',
+                command=lambda:self.uncheckall(1,cbs),justify='left')
+        self.__checkbutton_11=Checkbutton(self.__master,text='Bars',variable=var2,onvalue=1,offvalue=0,bg='#4f81bd',anchor='w',
+                command=lambda:self.uncheckall(2,cbs),justify='left')
+        self.__checkbutton_12=Checkbutton(self.__master,text='Points',variable=var3,onvalue=1,offvalue=0,bg='#4f81bd',anchor='w',
+                command=lambda:self.uncheckall(3,cbs),justify='left')
+        cbs = [self.__checkbutton_10, self.__checkbutton_11, self.__checkbutton_12]
+        self.__checkbutton_12.place(x=800,y=500)
+        self.__checkbutton_11.place(x=800,y=475)
+        self.__checkbutton_10.place(x=800,y=450)#ack(expand=0,anchor='e')

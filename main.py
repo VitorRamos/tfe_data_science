@@ -55,9 +55,11 @@ def main():
     print(moy)
     PascalData.dataframe_group(moy,"sensors")
     #moy=10"""
+    test=treat3.computeMeanEvolution()
+    test1=treat3.computeMedianEvolution()
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
-    mainwindow=MainWindow(root,setup,datas3,datas,data.conf,maxim, minim,med3,moy3)
+    mainwindow=MainWindow(root,setup,treat3,datas,data.conf)
     root.mainloop()
 
 class setupFile():
