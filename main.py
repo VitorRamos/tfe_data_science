@@ -10,37 +10,54 @@ def main():
     setup=setupFile()
     data=readJson()
     datatemp=data.read
-    #print (data.conf["data_descriptor"]["extras"]["sensors"]["values"][0])
+    """#print (data.conf["data_descriptor"]["extras"]["sensors"]["values"][0])
     #print("aa")
-    #print(data.res.keys())#["total_time"]
+    #print(data.res.keys())#["total_time"]"""
     datas=data.sens[(data.sens["sensors"].str.contains("ipmi"))]
-    #print("energy")
+    """#print("energy")
     #print(data.resu)
     #print(datas)
     datas2=data.res[(data.res["cores"] == 16)]
+    print('test')
+    print(datas2)"""
     datas3=data.resu
-    treat=Treatment(datas)
-    treat2=Treatment(datas2)
+    """treat=Treatment(datas)
+    treat2=Treatment(datas2)"""
     treat3=Treatment(datas3)
-    maxi=treat2.getMax()
-    maxim=treat3.getMax()
     datas3=treat3.init_type()
-    #print(maxi)
-    mini=treat2.getMin()
+    """print(datas3)"""
+    """datas4=datas3[(datas3["frequency"]==1200000)]
+    print(datas3[(datas3["ipmi_energy"]==11683.448269)])
+    treat4=Treatment(datas4)"""
+    """maxi=treat2.getMax()"""
+    maxim=treat3.getMax()
+    """datas4=treat4.init_type()
+    print('datas')
+    print(datas4)
+    maximu=treat4.getMax()
+    print(maximu)
+    mini=treat2.getMin()"""
     minim=treat3.getMin()
-    #print(minim)
-    med=treat.getMedian()
-    #print('dd')
-    med2=treat3.getMedian()
-    #print(med2)
+    """minimu=treat4.getMin()
+    print(minimu)
+    print('dd')
+    #med=treat.getMedian()
+    med2=treat2.getMedian()"""
+    med3=treat3.getMedian()
+    """print('ipmi_power')
+    print(datas4['ipmi_power'])
+    med4=treat4.getMedian()
+    print(med2)
     #print('ee')
-    moy=treat3.getMean()
-    #print(moy)
-    #PascalData.dataframe_group(moy,"sensors")
-    #moy=10
+    moy2=treat2.getMean()"""
+    moy3=treat3.getMean()
+    """moy4=treat4.getMean()
+    print(moy)
+    PascalData.dataframe_group(moy,"sensors")
+    #moy=10"""
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
-    mainwindow=MainWindow(root,setup,datas3,datas,data.conf,maxim, minim,med2,moy)
+    mainwindow=MainWindow(root,setup,datas3,datas,data.conf,maxim, minim,med3,moy3)
     root.mainloop()
 
 class setupFile():
@@ -63,7 +80,12 @@ class setupFile():
     def read(self):
         """Read the file with the name given.
         :param filename: Filename of the file to read"""
-#        self.__this_file=inspect.getfile(inspect.currentframe())
+        tree=ET.parse(self.__filename)
+        root=tree.getroot()
+        self.__filetype=root[0][0].text
+        self.colorframe=root[1][0].text
+        self.colorbutton=root[1][1].text
+        """#        self.__this_file=inspect.getfile(inspect.currentframe())
 #        self.__this_folder=os.path.dirname(os.path.abspath(self.__this_file))
 #        self.__this_filename=self.__this_folder+os.sep+self.__filename
 #        with open(self.__this_filename,'r')as f:
@@ -71,12 +93,7 @@ class setupFile():
 #                temp=line.replace('>'," ")
 #                y=tempo.lower()
 #                x=y.split(' ')
-#                self.__GoodFile=True
-        tree=ET.parse(self.__filename)
-        root=tree.getroot()
-        self.__filetype=root[0][0].text
-        self.colorframe=root[1][0].text
-        self.colorbutton=root[1][1].text
+#                self.__GoodFile=True"""
 
 class readJson():
     """ Class that read the file in JSON format contaning the results

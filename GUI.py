@@ -2,7 +2,7 @@
 import pandas as pd
 import inspect,os,matplotlib
 import matplotlib.pyplot as plt
-#import numpy as np
+import numpy as np
 matplotlib.use('TkAgg')
 from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -22,7 +22,7 @@ class Graph:
             simpleGraphe()
             twoGraphes()"""
 
-    def __init__(self,data,master, maxi, mini):
+    def __init__(self,data,master, maxi, mini,median):
         """ Create a empty object and initialize attributes."""
         self.__master=master
         self.__data=data
@@ -39,10 +39,22 @@ class Graph:
         self.__canvas.get_tk_widget().place(x=650,y=10)
         self.__max=maxi
         self.__min=mini
+        self.__median=median
         print(self.__data_disp.dtypes)
         print(self.__data_disp["ipmi_power"].shape)
         print(self.__data_disp["ipmi_energy"].shape)
-        self.__ax1,  = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
+        self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--') 
+        self.__ax1, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
+        #self.__axis= self.__fig.add_subplot(111)
+        """#N=1428
+        #ind = np.arange(N)
+        #width = 0.35
+        #self.__axis.bar(ind,self.__data_disp["ipmi_energy"],width)
+        print('median')
+        print(self.__median)"""
+        #self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__median,c='red', marker = "o")
+        #self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"], marker = "x")
+        #plt.show()
         self.__graph=self.simpleGraphe(data)
         
     #def read(self):
@@ -65,16 +77,17 @@ class Graph:
         self.__input=self.sinput.val
         #print("input")
         #print(self.__input)
-        self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)
-            &(self.__data["cores"]==self.__core)]
+        self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
+        #&(self.__data["cores"]==self.__core)]
         print("data")
         print(self.__data_disp)
         self.__ax1.set_xdata(self.__data_disp["ipmi_energy"])
         self.__ax1.set_ydata(self.__data_disp["ipmi_power"])
+        #self.__axis.set_xdata(self.__data_disp["ipmi_energy"])
+        #self.__axis.set_ydata(self.__data_disp["ipmi_power"])
         print(self.__data_disp.dtypes)
         print(self.__data_disp["ipmi_power"].shape)
         print(self.__data_disp["ipmi_energy"].shape)
-        
         self.__a=self.__fig.canvas.draw_idle()
 
     def simpleGraphe(self,data):
@@ -97,7 +110,7 @@ class Graph:
         self.scores.on_changed(self.sliders_on_changed)
         self.sinput.on_changed(self.sliders_on_changed)
         #print(self.sfreq.val)
-        self.__data_disp=data[(data["frequency"]==self.sfreq)]
+        #self.__data_disp=data[(data["frequency"]==self.sfreq)]
         print("power")
         print(self.__data_disp["ipmi_power"])
         #self.__canvas.show()
@@ -117,9 +130,11 @@ class Graph:
         self.__canvas.get_tk_widget().place(x=300,y=40)
 
     def reset(self):
+        print(self.__data)
         self.sfreq.reset()
         self.scores.reset()
         self.sinput.reset()
+        self.__graphini=self.simpleGraphe(self.__data)
 
 class MainWindow:
     """ Class that read the setup file
@@ -139,7 +154,7 @@ class MainWindow:
         self.__setup=setup
         #print("start")
         #print(datas["ipmi_power"])
-        self.__graphe=Graph(datas,master,maxi,mini)
+        self.__graphe=Graph(datas,master,maxi,mini,median)
         """self.graphe.createWidgets()"""
         self.__master=master
         """self.frame=Frame(self.master)"""
