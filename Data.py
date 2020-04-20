@@ -31,58 +31,33 @@ class Treatment:
         print(self.__data.dtypes)
         return self.__data
         
-    def getMax(self):
-        self.__maximum=self.__data.max()
+    def getMax(self,data):
+        self.__maximum=data.max()
+        print('maximum')
+        print(self.__maximum)
         return self.__maximum
 
-    def getMin(self):
-        """print ('minimum')
-        print(self.__data)"""
-        self.__minimum=self.__data.min()
-        #print(np.nanmin(self.__data))
+    def getMin(self,data):
+        print ('minimum')
+        print(self.__data)
+        self.__minimum=data.min()
+        """#print(np.nanmin(self.__data))
+        print(self.__data.min()['ipmi_energy'])
+        print('ll')
+        print(self.__minimum)"""
+        #print((self.__data['ipmi_energy']).min())
         return self.__minimum
         
-    def getMedian(self):
-        self.__median=self.__data.median()
+    def getMedian(self,data):
+        self.__median=data.median()
         return self.__median
 
-    def getMean(self):
+    def getMean(self,data):
         """print(self.__data)"""
-        self.__mean=self.__data.mean()
+        self.__mean=data.mean()
         """print(mean)"""
+        return self.__mean
     
     def getData(self):
         return self.__data
     
-    def getMeanEvolution(self):
-        return self.__meanEvolution
-    
-    def getMedianEvolution(self):
-        return self.__medianEvolution
-    
-    def computeMeanEvolution(self):
-        test=[]
-        bus=[]
-        for k in range(self.__data["ipmi_energy"].shape[0]):
-            mean2=np.mean(self.__data["ipmi_power"].iloc[k])
-            test.append(mean2)
-            bus.append(statistics.mean(test))
-            """print(bus)"""
-        self.__meanEvolution=bus
-
-    def computeMedianEvolution(self):
-        """median3=[np.median(self.__data["ipmi_power"].iloc[k]) for k in range(self.__data["ipmi_energy"].shape[0])]
-        median3=[self.__data["ipmi_power"].median(axis[k]) for k in range(self.__data["ipmi_energy"].shape[0])]
-        median2=[np.median(self.__data["total_time"].iloc[k]) for k in range(self.__data["frequency"].shape[0])]
-        print(median2)
-        print(self.__data["ipmi_energy"].shape[0])"""
-        print('median')
-        test=[]
-        bus=[]
-        for k in range(self.__data["ipmi_energy"].shape[0]):
-            median2=np.median(self.__data["ipmi_power"].iloc[k])
-            test.append(median2)
-            bus.append(statistics.median(test))
-            """print(bus)
-        print(bus)"""
-        self.__medianEvolution=bus

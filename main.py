@@ -26,40 +26,44 @@ def main():
     treat3=Treatment(datas3)
     datas3=treat3.init_type()
     """print(datas3)"""
-    """datas4=datas3[(datas3["frequency"]==1200000)]
-    print(datas3[(datas3["ipmi_energy"]==11683.448269)])
-    treat4=Treatment(datas4)"""
-    """maxi=treat2.getMax()"""
-    maxim=treat3.getMax()
-    """datas4=treat4.init_type()
+    datas4=datas3[(datas3["frequency"]==1200000)]
+    """print(datas3[(datas3["ipmi_energy"]==11683.448269)])"""
+    treat4=Treatment(datas4)
+    """maxi=treat2.getMax()
+    maxim=treat3.getMax()"""
+    datas4=treat4.init_type()
+    """"""
     print('datas')
     print(datas4)
-    maximu=treat4.getMax()
-    print(maximu)
-    mini=treat2.getMin()"""
-    minim=treat3.getMin()
-    """minimu=treat4.getMin()
-    print(minimu)
+    maximu=treat4.getMax(datas4)
+    print('size')
+    print(datas4.shape)
+    print(datas.shape)
+    """print(maximu)
+    mini=treat2.getMin()
+    minim=treat3.getMin()"""
+    minimu=treat4.getMin(datas4)
+    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']])
+    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']]['ipmi_power'])
+    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']].index[0])
     print('dd')
-    #med=treat.getMedian()
-    med2=treat2.getMedian()"""
+    """#med=treat.getMedian()
+    med2=treat2.getMedian()
     med3=treat3.getMedian()
-    """print('ipmi_power')
-    print(datas4['ipmi_power'])
-    med4=treat4.getMedian()
-    print(med2)
+    print('ipmi_power')
+    print(datas4['ipmi_power'])"""
+    med4=treat4.getMedian(datas4)
+    """print(med2)
     #print('ee')
-    moy2=treat2.getMean()"""
-    moy3=treat3.getMean()
-    """moy4=treat4.getMean()
-    print(moy)
+    moy2=treat2.getMean()
+    moy3=treat3.getMean()"""
+    moy4=treat4.getMean(datas4)
+    """print(moy)
     PascalData.dataframe_group(moy,"sensors")
     #moy=10"""
-    test=treat3.computeMeanEvolution()
-    test1=treat3.computeMedianEvolution()
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
-    mainwindow=MainWindow(root,setup,treat3,datas,data.conf)
+    mainwindow=MainWindow(root,setup,treat4,datas4,data.conf)
     root.mainloop()
 
 class setupFile():
