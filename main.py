@@ -110,7 +110,7 @@ class readJson():
     
     def __init__(self):
         """ Create a empty object and initialize attribute."""
-        self.__input_file="d:\Profiles\igauthier\Documents\cours\completo_black_3.json"
+        self.__input_file="d:\Profiles\igauthier\Documents\cours\TFE\completo_black_3.json"
     
     @property
     def read(self):

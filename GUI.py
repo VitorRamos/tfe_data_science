@@ -35,6 +35,10 @@ class Graph:
         self.__mean=data.getMean(self.__data_disp)
         self.__choice='P'
         self.__sliders=[0,0,0]
+        temp=[]
+        self.sfreq=None
+        self.scores=None
+        self.sinput=None
         """self.__choice=choice
         print(self.__data_disp.dtypes)
         print(self.__data_disp["ipmi_power"].shape)
@@ -58,48 +62,73 @@ class Graph:
         print(self.__median)"""
         if self.__choice == 'P':
             print('ah')
-            print(self.__data_disp['ipmi_energy'].index[1])
+            print(self.__median['ipmi_energy'])
             self.__axis=self.__fig.add_subplot(111)
             self.__axis.scatter(self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__min['ipmi_energy']]['ipmi_power'],
                 self.__min['ipmi_energy'],c='red', marker = "o")
             self.__axis.scatter(self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__max['ipmi_energy']]['ipmi_power'],
-                self.__max['ipmi_energy'],c='red', marker = "s") 
+                self.__max['ipmi_energy'],c='red', marker = "s")
             for i in range (len(self.__data_disp['ipmi_energy'])):
-                self.__axis.scatter(self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__median['ipmi_energy']]['ipmi_power'], 
-                    self.__median['ipmi_energy'],c='red', marker = "P")
-                """self.__axis.scatter(self.__data_disp.loc[i]['ipmi_power'], 
+                temp.append(self.__median['ipmi_energy'])
+            self.__axis.scatter(self.__data_disp['ipmi_power'], temp,c='red', marker = "P")
+            self.__axis.plot([self.__min["ipmi_power"], self.__max["ipmi_power"]], [self.__median['ipmi_energy'], self.__median['ipmi_energy']], color = 'green', linestyle = 'solid')
+            """print("median")
+            print(self.__data_disp['ipmi_power'])
+            self.__axis.scatter(self.__data_disp.loc[i]['ipmi_power'], 
                     self.__median['ipmi_energy'],c='green', marker = "P")"""
-            self.__axis.scatter(self.__mean['ipmi_power'],self.__mean['ipmi_energy'],c='red', marker = "*")
+            self.__axis.plot([self.__min["ipmi_power"], self.__max["ipmi_power"]],[self.__mean['ipmi_energy'],self.__mean['ipmi_energy']],color='red', linestyle = 'solid')
             print('kk')
             self.__axis.scatter(self.__data_disp["ipmi_power"],self.__data_disp["ipmi_energy"], marker = "x")
-            #plt.show()self.__axis, = 
+            plt.show()#self.__axis, = 
         print('ouf')
         self.__graph=self.simpleGraphe(data,self.__sliders)
 
     def sliders_on_changed(self,val):
         """Display a sliding bar controlling a variable.
         :param val: The variable to modify"""
-        self.__freq=self.sfreq.val
+        if self.sfreq!=None:
+            self.__freq=self.sfreq.val
         #print("frequence")
         #print(self.__freq)
-        self.__core=self.scores.val
-        print("core")
-        print(self.__core)
-        self.__input=self.sinput.val
+        if self.scores!=None:
+            self.__core=self.scores.val
+        """print("core")
+        print(self.__core)"""
+        if self.sinput!=None:
+            self.__input=self.sinput.val
         #print("input")
         #print(self.__input)
-        self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
-        #&(self.__data["cores"]==self.__core)]
-        print("data")
-        print(self.__data_disp)
+        if self.sfreq!=None:
+            if self.sinput!=None:
+                if self.scores!=None:
+                    self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)
+                        &(self.__data["cores"]==self.__core)]
+                else:
+                    self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
+            else:
+                if self.scores!=None:
+                    self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["cores"]==self.__core)]
+                else:
+                    self.__data_disp=self.__data[(self.__data["frequency"]==self.__freq)]
+        else:
+            if self.sinput!=None:
+                if self.scores!=None:
+                    self.__data_disp=self.__data[(self.__data["input"]==self.__input)&(self.__data["cores"]==self.__core)]
+                else:
+                    self.__data_disp=self.__data[(self.__data["input"]==self.__input)]
+            else:
+                if self.scores!=None:
+                    self.__data_disp=self.__data[(self.__data["cores"]==self.__core)]
+        """print("data")
+        print(self.__data_disp)"""
         #if self.__choice == 'L':
         self.__axis.set_xdata(self.__data_disp["ipmi_energy"])
         self.__axis.set_ydata(self.__data_disp["ipmi_power"])
         """if self.__choice == 'P':
-            plt.ylim([self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"]])"""
+            plt.ylim([self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"]])
         print(self.__data_disp.dtypes)
         print(self.__data_disp["ipmi_power"].shape)
-        print(self.__data_disp["ipmi_energy"].shape)
+        print(self.__data_disp["ipmi_energy"].shape)"""
         self.__a=self.__fig.canvas.draw_idle()
 
     def simpleGraphe(self,data,sliders):
@@ -112,19 +141,41 @@ class Graph:
         self.__sliders=sliders
         self.__fig.subplots_adjust(bottom=0.2)
         self.__axcolor = 'lightgoldenrodyellow'
-        if self.__sliders[0]==1:
-            self.__axfreq=self.__fig.add_axes([0.2, 0.11, 0.6, 0.03], facecolor=self.__axcolor)
-            self.sfreq=Slider(self.__axfreq,'Frequency',self.__min["frequency"],self.__max["frequency"],valinit=self.__min["frequency"],
-            valstep=100000)
-            self.sfreq.on_changed(self.sliders_on_changed)
         if self.__sliders[1]==1:
-            self.__axcore=self.__fig.add_axes([0.2, 0.07, 0.6, 0.03], facecolor=self.__axcolor)
-            self.scores=Slider(self.__axcore,'Cores',self.__min["cores"],self.__max["cores"], valinit=self.__min["cores"],valstep=1)
+            if self.sfreq==None:
+                self.__axfreq=self.__fig.add_axes([0.2, 0.11, 0.6, 0.03], facecolor=self.__axcolor)
+                self.sfreq=Slider(self.__axfreq,'Frequency',self.__min["frequency"],self.__max["frequency"],valinit=self.__min["frequency"],
+                    valstep=100000)
+            self.sfreq.on_changed(self.sliders_on_changed)
+            """else:
+                self.sfreq.set_visible(False)
+            else:
+            #if self.sfreq!=None:
+                self.sfreq.set_visible(False)"""
+        if self.__sliders[0]==1:
+            if self.scores==None:
+                self.__axcore=self.__fig.add_axes([0.2, 0.07, 0.6, 0.03], facecolor=self.__axcolor)
+                self.scores=Slider(self.__axcore,'Cores',self.__min["cores"],self.__max["cores"], valinit=self.__min["cores"],valstep=1)
             self.scores.on_changed(self.sliders_on_changed)
+            """else:
+                self.scores.set_visible(False)
+        else:
+            if self.scores!=None:
+                #self.scores.set_visible(False)
+                self.scores.remove()"""
+        print("sliders2")
+        print(self.__sliders[2])
+        print(self.sinput)
         if self.__sliders[2]==1:
-            self.__axinput=self.__fig.add_axes([0.2, 0.03, 0.6, 0.03], facecolor=self.__axcolor)    
-            self.sinput=Slider(self.__axinput,'Input',self.__min["input"],self.__max["input"], valinit=self.__min["input"],valstep=1)    
+            if self.sinput==None:
+                self.__axinput=self.__fig.add_axes([0.2, 0.03, 0.6, 0.03], facecolor=self.__axcolor)    
+                self.sinput=Slider(self.__axinput,'Input',self.__min["input"],self.__max["input"], valinit=self.__min["input"],valstep=1)    
             self.sinput.on_changed(self.sliders_on_changed)
+            """else:
+                self.sinput.set_visible(True)
+        else:
+            if self.sinput!=None:
+                self.sinput.set_visible(False)"""
         #print(self.sfreq.val)
         #self.__data_disp=data[(data["frequency"]==self.sfreq)]
         print("power")
@@ -149,28 +200,44 @@ class Graph:
         self.__choice='P'
         print(self.__data)
         if self.__sliders[0]==1:
-            self.sfreq.reset()
+            if self.sfreq!=None:
+                self.sfreq.reset()
         if self.__sliders[1]==1:
-            self.scores.reset()
+            if self.scores!=None:
+                self.scores.reset()
         if self.__sliders[2]==1:
-            self.sinput.reset()
-        graphini=self.simpleGraphe(self.__data,self.__sliders)
+            if self.sinput!=None:
+                self.sinput.reset()
+        graphini=self.simpleGraphe(self.__data,[0,0,0])
 
     def updateType(self,choice,sliders):
         self.__sliders=sliders
+        print(choice)
         self.__choice=choice
-        self.__fig.clf()
+        self.__axis.clear()
+        #elf.__fig.clsa()
+        #self.__fig = Figure(figsize=(12,7), dpi=50)
         if self.__choice == 'L':
             #self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--') 
-            self.__axis, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
+            markers=[self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__min['ipmi_energy']].index[0],
+                self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__max['ipmi_energy']].index[0]]
+            print('markers')
+            print(markers)
+            #self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__median, 'r--') 
+            #[self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__median['ipmi_energy']].index[0]],
+            #self.__axis, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"])
+            self.__axis, = self.__fig.add_subplot(111).plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"],marker='o', ls='-',markevery=[210,250])
+            #self.__axis, = self.__fig.add_subplot(111).plot() 
+            #self.__axis, = self.__fig.plot()
         if self.__choice == 'B':    
             self.__axis= self.__fig.add_subplot(111)
-            N=1428
+            N=119
             ind = np.arange(N)
             width = 0.35
+            print("Bars")
+            print(self.__data_disp["ipmi_energy"].shape)
             self.__axis.bar(ind,self.__data_disp["ipmi_energy"],width)
         if self.__choice == 'P':
-            self.__axis= self.__fig.add_subplot(111)
             self.__axis.scatter(self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__min['ipmi_energy']]['ipmi_power'],
                 self.__min['ipmi_energy'],c='red', marker = "o")
             self.__axis.scatter(self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__max['ipmi_energy']]['ipmi_power'],
@@ -179,7 +246,8 @@ class Graph:
                 self.__median['ipmi_energy'],c='red', marker = "P")
             self.__axis.scatter(self.__mean['ipmi_power'],self.__mean['ipmi_energy'],c='red', marker = "*")
             self.__axis.scatter(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"], marker = "x")
-        print(self.__data)
+            self.__axis= self.__fig.add_subplot(111)
+        #print(self.__data)
         self.__graph=self.simpleGraphe(self.__data_disp,self.__sliders)
 
 class MainWindow:
@@ -208,6 +276,8 @@ class MainWindow:
         self.__min=datas.getMin(data)
         self.__median=datas.getMedian(data)
         self.__mean=datas.getMean(data)
+        self.datas=data
+        self.__axes=['ipmi_power','ipmi_energy']
         self.__mask=[0,0,0]
         self.__label_2=None
         self.__label_3=None
@@ -219,6 +289,8 @@ class MainWindow:
         self.__label_9=None
         self.__label_10=None
         self.__tkvar=StringVar()
+        self.__tkvar1=StringVar()
+        self.__tkvar2=StringVar()
         self.__choice='C'
         self.initGUI(datas)
         
@@ -257,11 +329,12 @@ class MainWindow:
             self.__checkbutton_1=Checkbutton(self.__master,text=self.__confi["data_descriptor"]["keys"][i],
                 variable=lambda index=i:var[index],onvalue=1,offvalue=0,bg='#4f81bd',anchor='w',justify='left',
                 command=lambda index=i:self.update_text(var,index)).pack(expand=0,anchor='w')
-
+        self.choiceAxesX()
+        self.choiceAxesY()
+        
     def update_text(self,var,i):
         print(i)
         print(self.__label_2)
-        print(var[i].get())
         if i==0:
             if self.__label_2==None:
                 self.__mask[0]=1
@@ -365,6 +438,7 @@ class MainWindow:
         #read the session file thanks to the object session.
         self.__name= filedialog.askopenfilename()
         print(self.__name)
+        return self.__name
 
     def uncheckall(self,checktest,cbs):
         print(checktest)
@@ -394,9 +468,9 @@ class MainWindow:
     def updateGraph(self):
         self.__graphe.updateType(self.__choice,self.__mask)
     
-    def change_dropdown(self,*args):
-        """print('ee')
-        print(self.__tkvar.get())"""
+    def change_dropdownType(self,*args):
+        """print('ee')"""
+        print(self.__tkvar.get())
         if (self.__tkvar.get())=='Lignes':
             self.__choice='L'
         else:
@@ -422,8 +496,42 @@ class MainWindow:
         self.__checkbutton_10.place(x=800,y=450)#ack(expand=0,anchor='e')"""
         choices={'Lignes','Bars','Points'}
         self.__tkvar.set('Points')
-
         popupMenu=OptionMenu(self.__master,self.__tkvar,*choices)
         Label(self.__master,text="Choose a type of graph").pack(expand=0,anchor='w')
         popupMenu.pack(expand=0,anchor='w')
-        self.__tkvar.trace('w',self.change_dropdown)
+        self.__tkvar.trace('w',self.change_dropdownType)
+
+    def choiceAxesY(self):
+        listAxesY=[]
+        for i in range (len(self.__confi["data_descriptor"])):
+            listAxesY.append(self.__confi["data_descriptor"]["keys"][i])
+        listAxesY.append("ipmi_energy")
+        listAxesY.append("ipmi_power")
+        self.__tkvar2.set('ipmi_power')
+        popupMenu=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
+        Label(self.__master,text='Axe Y:',justify=LEFT).pack(expand=0,anchor='w')
+        popupMenu.pack(expand=0,anchor='w')
+        self.__tkvar2.trace('w',self.change_dropdownAxesY)
+        
+    def choiceAxesX(self):
+        listAxes=[]
+        for i in range (len(self.__confi["data_descriptor"])):
+            listAxes.append(self.__confi["data_descriptor"]["keys"][i])
+        listAxes.append("ipmi_energy")
+        listAxes.append("ipmi_power")
+        self.__tkvar1.set('ipmi_energy')
+        popupMenu=OptionMenu(self.__master,self.__tkvar1,*listAxes)
+        Label(self.__master,text='Axe X:',justify=LEFT).pack(expand=0,anchor='w')
+        popupMenu.pack(expand=0,anchor='w')
+        self.__tkvar1.trace('w',self.change_dropdownAxesX)
+
+    def change_dropdownAxesX(self,*args):
+        print('AxesX')
+        print(self.__tkvar1.get())
+
+    def change_dropdownAxesY(self,*args):
+        print('axesY')
+        print(self.__tkvar2.get())
+        print(self.datas[self.__tkvar2.get()])
+        print('test')
+        print(self.datas['frequency'])
