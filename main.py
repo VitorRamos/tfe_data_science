@@ -6,6 +6,9 @@ from GUI import MainWindow, Graph
 from tkinter import tix
 root=tix.Tk()
 
+import pandas as pd
+pd.options.mode.chained_assignment = None
+
 def main():
     setup=setupFile()
     data=readJson()
@@ -33,20 +36,20 @@ def main():
     maxim=treat3.getMax()"""
     datas4=treat4.init_type()
     """"""
-    print('datas')
-    print(datas4)
+    # print('datas')
+    # print(datas4)
     maximu=treat4.getMax(datas4)
-    print('size')
-    print(datas4.shape)
-    print(datas.shape)
+    # print('size')
+    # print(datas4.shape)
+    # print(datas.shape)
     """print(maximu)
     mini=treat2.getMin()
     minim=treat3.getMin()"""
     minimu=treat4.getMin(datas4)
-    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']])
-    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']]['ipmi_power'])
-    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']].index[0])
-    print('dd')
+    # print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']])
+    # print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']]['ipmi_power'])
+    # print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']].index[0])
+    # print('dd')
     """#med=treat.getMedian()
     med2=treat2.getMedian()
     med3=treat3.getMedian()
@@ -110,7 +113,7 @@ class readJson():
     
     def __init__(self):
         """ Create a empty object and initialize attribute."""
-        self.__input_file="d:\Profiles\igauthier\Documents\cours\TFE\completo_black_3.json"
+        self.__input_file="data/completo_black_3.json"
     
     @property
     def read(self):
