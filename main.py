@@ -10,57 +10,29 @@ def main():
     setup=setupFile()
     data=readJson()
     datatemp=data.read
-    """#print (data.conf["data_descriptor"]["extras"]["sensors"]["values"][0])
-    #print("aa")
-    #print(data.res.keys())#["total_time"]"""
     datas=data.sens[(data.sens["sensors"].str.contains("ipmi"))]
-    """#print("energy")
-    #print(data.resu)
-    #print(datas)
-    datas2=data.res[(data.res["cores"] == 16)]
-    print('test')
-    print(datas2)"""
+    """datas2=data.res[(data.res["cores"] == 16)]"""
     datas3=data.resu
     """treat=Treatment(datas)
     treat2=Treatment(datas2)"""
     treat3=Treatment(datas3)
     datas3=treat3.init_type()
-    """print(datas3)"""
     datas4=datas3[(datas3["frequency"]==1200000)]
-    """print(datas3[(datas3["ipmi_energy"]==11683.448269)])"""
     treat4=Treatment(datas4)
     """maxi=treat2.getMax()
     maxim=treat3.getMax()"""
     datas4=treat4.init_type()
-    """"""
-    print('datas')
-    print(datas4)
     maximu=treat4.getMax(datas4)
-    """print('size')
-    print(datas4.shape)
-    print(datas.shape)
-    print(maximu)
-    mini=treat2.getMin()
+    """mini=treat2.getMin()
     minim=treat3.getMin()"""
     minimu=treat4.getMin(datas4)
-    """print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']])
-    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']]['ipmi_power'])
-    print(datas4.loc[datas4['ipmi_energy']==minimu['ipmi_energy']].index[0])
-    print('dd')
-    #med=treat.getMedian()
+    """med=treat.getMedian()
     med2=treat2.getMedian()
-    med3=treat3.getMedian()
-    print('ipmi_power')
-    print(datas4['ipmi_power'])"""
+    med3=treat3.getMedian()"""
     med4=treat4.getMedian(datas4)
-    """print(med2)
-    #print('ee')
-    moy2=treat2.getMean()
+    """moy2=treat2.getMean()
     moy3=treat3.getMean()"""
     moy4=treat4.getMean(datas4)
-    """print(moy)
-    PascalData.dataframe_group(moy,"sensors")
-    #moy=10"""
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
     mainwindow=MainWindow(root,setup,treat4,datas4,data.conf)
@@ -91,16 +63,7 @@ class setupFile():
         self.__filetype=root[0][0].text
         self.colorframe=root[1][0].text
         self.colorbutton=root[1][1].text
-        """#        self.__this_file=inspect.getfile(inspect.currentframe())
-#        self.__this_folder=os.path.dirname(os.path.abspath(self.__this_file))
-#        self.__this_filename=self.__this_folder+os.sep+self.__filename
-#        with open(self.__this_filename,'r')as f:
-#            for line_idx,line in enumerate(f):
-#                temp=line.replace('>'," ")
-#                y=tempo.lower()
-#                x=y.split(' ')
-#                self.__GoodFile=True"""
-
+        
 class readJson():
     """ Class that read the file in JSON format contaning the results
         Attributes

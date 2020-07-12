@@ -60,4 +60,3 @@ class Treatment:
     
     def getData(self):
         return self.__data
-    
