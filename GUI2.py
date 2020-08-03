@@ -20,22 +20,25 @@ class Graph:
             simpleGraphe()
             twoGraphes()"""
 
-    def __init__(self,data,master,choice):
+    def __init__(self,data,master,choice,heightscr,widthscr):
         """ Create a empty object and initialize attributes."""
         self.__master=master
         self.__test=data
         self.__data=data.getData()
-        self.__fig1 = Figure( figsize=(7,6),dpi=100)#
+        heightscr=heightscr/120
+        widthscr=widthscr/150
+        self.__fig1 = Figure( figsize=(widthscr,heightscr),dpi=100)
+        self.__fig1.subplots_adjust(bottom=0.25,hspace=0.4)
         self.__canvas=FigureCanvasTkAgg(self.__fig1,master=self.__master)
         self.__data_disp= self.__data
-        self.__canvas.get_tk_widget().place(x=650,y=10)
+        self.__canvas.get_tk_widget().place(x=400,y=10)
         self.__max=data.getMax(self.__data_disp)
         self.__min=data.getMin(self.__data_disp)
         self.__median=data.getMedian(self.__data_disp)
         self.__mean=data.getMean(self.__data_disp)
-        self.__choice='P'
-        self.__axesX= ["ipmi_power","ipmi_power"]
-        self.__axesY= ["ipmi_energy","total_time"]
+        self.__choice=choice
+        self.__axesX= ["ipmi_power","total_time"]
+        self.__axesY= ["ipmi_energy","ipmi_energy"]
         self.__sliders=[0,0,0]
         temp0=[]
         temp1=[]
@@ -52,8 +55,10 @@ class Graph:
             temp0.append(self.__median[self.__axesY[0]])
         for i in range (len(self.__data_disp[self.__axesX[1]])):
             temp1.append(self.__median[self.__axesY[1]])
-        mean1= self.__data_disp[self.__axesY[1]].mean()
-        mean2= self.__data_disp[self.__axesY[0]].mean()
+        mean1= self.__data_disp[self.__axesY[0]].mean()
+        mean2= self.__data_disp[self.__axesY[1]].mean()
+        median2= self.__data_disp[self.__axesY[1]].median()
+        median1= self.__data_disp[self.__axesY[0]].median()
         self.__axis1.set_title('Graphe 1')
         self.__axis2.set_title('Graphe 2')
         if self.__choice == 'L':
@@ -99,28 +104,43 @@ class Graph:
             self.__axis2.bar(ind, temp1,width,color='red', tick_label="Median")
             self.__axis2.bar(ind,self.__data_disp[self.__axesX[1]],width,tick_label=self.__axesX[1])
         if self.__choice == 'P':
-            self.__axis1.scatter(self.__data_disp.loc[min1_v][self.__axesX[0]], self.__data_disp.loc[min1_v][self.__axesY[0]], 
-                                    c='black', marker = "o",label="Minimum")
-            self.__axis1.scatter(self.__data_disp.loc[max1_v][self.__axesX[0]], self.__data_disp.loc[max1_v][self.__axesY[0]], 
-                                    c='green', marker = "o", label="Maximum")
+            self.__axis1.scatter(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x")
+            self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()],
+                                [self.__data_disp.loc[min1_v][self.__axesY[0]],self.__data_disp.loc[min1_v][self.__axesY[0]]], 
+                                c='black', marker = "o",label="Minimum")
+            self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()],
+                                [self.__data_disp.loc[max1_v][self.__axesY[0]],self.__data_disp.loc[max1_v][self.__axesY[0]]],
+                                c='green', marker = "o", label="Maximum")
             self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [mean1, mean1], 
                                 c='red',label="Mean")
-            self.__axis1.scatter(self.__data_disp[self.__axesX[0]], temp0,c='red', marker = "P",label="Median")
-            self.__axis1.scatter(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x")
-            self.__axis2.scatter(self.__data_disp.loc[min2_v][self.__axesX[1]], self.__data_disp.loc[min2_v][self.__axesY[1]], 
-                                    c='black',marker = "o",label="Minimum")
-            self.__axis2.scatter(self.__data_disp.loc[max2_v][self.__axesX[1]], self.__data_disp.loc[max2_v][self.__axesY[1]], 
-                                    c='green',marker = "o",label="Maximum")
-            self.__axis2.scatter([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()], [mean2, mean2], 
+            self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [median1,median1],
+                                c='cyan', marker = "P",label="Median")
+            median2= self.__data_disp[self.__axesY[1]].median()
+            print("mean2",mean2)
+            print("median2",median2)
+            self.__axis2.scatter(self.__data_disp[self.__axesX[1]], self.__data_disp[self.__axesY[1]],c='blue', marker = "o")
+            self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
+                                [self.__data_disp.loc[min2_v][self.__axesY[1]], self.__data_disp.loc[min2_v][self.__axesY[1]]], 
+                                c='black',marker = "o",label="Minimum")
+            self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
+                                [self.__data_disp.loc[max2_v][self.__axesY[1]],self.__data_disp.loc[max2_v][self.__axesY[1]]],
+                                c='green',marker = "o",label="Maximum")
+            self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()], [mean2, mean2], 
                                     c='red',label="Mean")
-            self.__axis2.scatter(self.__data_disp[self.__axesX[1]], temp1,c='red', marker = "P",label="Median")
-            self.__axis2.scatter(self.__data_disp[self.__axesX[1]], self.__data_disp[self.__axesY[1]],c='red', marker = "o")        
+            self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
+                                [median2, median2],c='cyan', marker = "P",label="Median")
         self.__axis1.set_xlabel(self.__axesX[0])
         self.__axis1.set_ylabel(self.__axesY[0])
-        self.__axis1.legend()
+        self.__box1 = self.__axis1.get_position()
+        self.__pos1=self.__box1.width * 0.7
+        self.__axis1.set_position([self.__box1.x0, self.__box1.y0, self.__pos1, self.__box1.height])
+        self.__axis1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         self.__axis2.set_xlabel(self.__axesX[1])
         self.__axis2.set_ylabel(self.__axesY[1])
-        self.__axis2.legend()
+        self.__box2 = self.__axis2.get_position()
+        self.__pos2=self.__box2.width * 0.7
+        self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
+        self.__axis2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
         #self.__graph=self.simpleGraphe(self.__sliders)
         self.__graph=self.twoGraphes(self.__sliders)
@@ -128,44 +148,48 @@ class Graph:
     def sliders_on_changed(self,val):
         """Display a sliding bar controlling a variable.
         :param val: The variable to modify"""
+        print('freq',self.sfreq)
+        if self.sfreq!=None:
+            print(self.__axfreq.get_visible())
+        print('input',self.sinput)
+        if self.sinput!=None:
+            print(self.__axinput.get_visible())
         if self.sfreq!=None:
             self.__freq=self.sfreq.val
         if self.scores!=None:
             self.__core=self.scores.val
         if self.sinput!=None:
             self.__input=self.sinput.val
-        if self.sfreq!=None and self.__axfreq.get_visible():
-            if self.scores!=None and self.sinput!=None:
+        if self.sfreq!=None and self.__axfreq.get_visible()==True:
+            print('frequence',self.__freq)
+            if self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
                                                 &(self.__data["input"]==self.__input)]
-            if self.scores!=None and self.sinput==None:
+            elif(self.scores!=None and self.sinput==None and self.__axcore.get_visible()==True)or(self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)]
-            if self.scores==None and self.sinput!=None:
+            elif(self.scores==None and self.sinput!=None and self.__axinput.get_visible()==True)or(self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
-            elif self.scores==None and self.sinput==None:
+            else:
                 self.__data_disp= self.__data_disp[self.__data_disp["frequency"]==self.__freq]
         if self.sinput!=None and self.__axinput.get_visible():
-            if self.sfreq!=None and self.scores!=None:
-                print('frequence',self.__freq,'input',self.__input)
+            if self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==True and self.__axfreq.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
                                                 &(self.__data["input"]==self.__input)]
-            if self.sfreq!=None and self.scores==None:
+            elif(self.sfreq!=None and self.scores==None)or(self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==False and self.__axfreq.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["input"]==self.__input)&(self.__data["frequency"]==self.__freq)]
-            if self.sfreq==None and self.scores!=None:
+            elif(self.sfreq==None and self.scores!=None)or(self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==True and self.__axfreq.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["input"]==self.__input)]
-            elif self.sfreq==None and self.scores==None:
+            else:
                 self.__data_disp= self.__data_disp[self.__data_disp["input"]==self.__input]
         if self.scores!=None and self.__axcore.get_visible():
-            print('cores',self.__core)
-            if self.sfreq!=None and self.sinput!=None:
-                print('frequence',self.__freq,'input',self.__input)
+            if(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__axinput.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
                                                 &(self.__data["input"]==self.__input)]
-            if self.sfreq!=None and self.sinput==None:
+            elif(self.sfreq!=None and self.sinput==None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__input.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)]
-            if self.sfreq==None and self.sinput!=None:
+            elif(self.sfreq==None and self.sinput!=None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==False and self.__input.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["input"]==self.__input)]
-            elif self.sfreq==None and self.sinput==None:
+            else:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)]
         self.updateType(self.__choice)
 
@@ -235,9 +259,12 @@ class Graph:
     def twoGraphes(self,sliders):
         """Creating to graph to compare them."""
         self.__sliders=sliders
+        self.__fig1.subplots_adjust(bottom=0.2,hspace=0.2)
         self.__graphe=plt.subplots(2)
-        self.__fig1.subplots_adjust(bottom=0.2)
         self.__axcolor = 'lightgoldenrodyellow'
+        print(self.__sliders)
+        print('freq',self.sfreq)
+        print('inp',self.sinput)
         if self.__sliders[1]==1:
             if self.sfreq==None:
                 self.__axfreq=self.__fig1.add_axes([0.2,0.11,0.6,0.03], facecolor=self.__axcolor)
@@ -253,7 +280,8 @@ class Graph:
             if self.scores!=None and self.sinput==None:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)]
             if self.scores==None and self.sinput!=None:
-                self.__data_disp= self.__data[(self.__data["input"]==self.__input)]
+                if self.__input!=None:
+                    self.__data_disp= self.__data[(self.__data["input"]==self.__input)]
             elif self.scores==None and self.sinput==None:
                 self.__data_disp= self.__data
         if self.__sliders[0]==1:
@@ -297,6 +325,10 @@ class Graph:
         plot(names,values)
         self.__canvas=FigureCanvasTkAgg(self.__fig)
         self.__canvas.get_tk_widget().place(x=300,y=40)"""
+        if self.sfreq!=None:
+            print('fr',self.__axfreq.get_visible())
+        if self.sinput!=None:
+            print('in',self.__axinput.get_visible())
         self.updateType(self.__choice)
         self.__canvas.draw()
 
@@ -328,6 +360,7 @@ class Graph:
 
     def set_axeY1(self, val):
         self.__axesY[1]= val
+        self.updateType()
         
     def updateType(self,choice):
         self.__axis1.clear()
@@ -339,14 +372,18 @@ class Graph:
         max1_v= np.argmax(self.__data_disp[self.__axesY[0]])
         min2_v= np.argmin(self.__data_disp[self.__axesY[1]])
         max2_v= np.argmax(self.__data_disp[self.__axesY[1]])
+        print('max',max2_v)
+        print('min',min2_v)
         self.__axis1=self.__fig1.add_subplot(211)
         self.__axis2=self.__fig1.add_subplot(212)
         for i in range (len(self.__data_disp[self.__axesX[0]])):
             temp0.append(self.__median[self.__axesY[0]])
         for i in range (len(self.__data_disp[self.__axesX[1]])):
             temp1.append(self.__median[self.__axesY[1]])
-        mean1= self.__data_disp[self.__axesY[1]].mean()
-        mean2= self.__data_disp[self.__axesY[0]].mean()
+        mean1= self.__data_disp[self.__axesY[0]].mean()
+        mean2= self.__data_disp[self.__axesY[1]].mean()
+        median2= self.__data_disp[self.__axesY[1]].median()
+        median1= self.__data_disp[self.__axesY[0]].median()
         self.__axis1.set_title('Graphe 1')
         self.__axis2.set_title('Graphe 2')
         if not self.__data_disp.empty:
@@ -389,32 +426,70 @@ class Graph:
                 self.__axis2.bar(ind, temp1,width,color='red', tick_label="Median")
                 self.__axis2.bar(ind,self.__data_disp[self.__axesX[1]],width,tick_label=self.__axesX[1])
             if self.__choice == 'P':
-                self.__axis1.scatter(self.__data_disp.loc[min1_v][self.__axesX[0]], self.__data_disp.loc[min1_v][self.__axesY[0]], 
-                                        c='black', marker = "o",label="Minimum")
-                self.__axis1.scatter(self.__data_disp.loc[max1_v][self.__axesX[0]], self.__data_disp.loc[max1_v][self.__axesY[0]], 
-                                        c='green', marker = "o", label="Maximum")
-                self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [mean1, mean1], 
-                                    c='red',label="Mean")
-                self.__axis1.scatter(self.__data_disp[self.__axesX[0]], temp0,c='red', marker = "P",label="Median")
                 self.__axis1.scatter(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x")
-                self.__axis2.scatter(self.__data_disp.loc[min2_v][self.__axesX[1]], self.__data_disp.loc[min2_v][self.__axesY[1]], 
-                                        c='black',marker = "o",label="Minimum")
-                self.__axis2.scatter(self.__data_disp.loc[max2_v][self.__axesX[1]], self.__data_disp.loc[max2_v][self.__axesY[1]], 
-                                        c='green',marker = "o",label="Maximum")
-                self.__axis2.scatter([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()], [mean2, mean2], 
+                self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], 
+                                    [self.__data_disp.loc[min1_v][self.__axesY[0]],self.__data_disp.loc[min1_v][self.__axesY[0]]], 
+                                        c='black', marker = "o",label="Minimum")
+                self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], 
+                                    [self.__data_disp.loc[max1_v][self.__axesY[0]],self.__data_disp.loc[max1_v][self.__axesY[0]]], 
+                                        c='green', marker = "o", label="Maximum")
+                self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()],[mean1, mean1], 
                                     c='red',label="Mean")
-                self.__axis2.scatter(self.__data_disp[self.__axesX[1]], temp1,c='red', marker = "P",label="Median")
-                self.__axis2.scatter(self.__data_disp[self.__axesX[1]], self.__data_disp[self.__axesY[1]],c='red', marker = "o")        
+                self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [median1,median1],
+                                    c='cyan', marker = "P",label="Median")
+                print("mean2",mean2)
+                print('median2',median2)
+                self.__axis2.scatter(self.__data_disp[self.__axesX[1]], self.__data_disp[self.__axesY[1]],c='blue', marker = "o")
+                self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
+                                    [self.__data_disp.loc[min2_v][self.__axesY[1]],self.__data_disp.loc[min2_v][self.__axesY[1]]],
+                                    c='black',marker = "o",label="Minimum")
+                self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
+                                    [self.__data_disp.loc[max2_v][self.__axesY[1]],self.__data_disp.loc[max2_v][self.__axesY[1]]],
+                                    c='green',marker = "o",label="Maximum")
+                self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()], [mean2, mean2], 
+                                        c='red',label="Mean")
+                self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
+                                    [median2, median2],c='cyan', marker = "P",label="Median")
             self.__axis1.set_xlabel(self.__axesX[0])
             self.__axis1.set_ylabel(self.__axesY[0])
-            self.__axis1.legend()
+            #box1 = self.__axis1.get_position()
+            self.__axis1.set_position([self.__box1.x0, self.__box1.y0, self.__pos1, self.__box1.height])
+            self.__axis1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
             self.__axis2.set_xlabel(self.__axesX[1])
             self.__axis2.set_ylabel(self.__axesY[1])
-            self.__axis2.legend()
+            #box2 = self.__axis2.get_position()
+            self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
+            self.__axis2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         self.__a=self.__fig1.canvas.draw_idle()
     
     def getGraph(self):
         return self.__fig1
+
+    def getVal(self):
+        if self.sfreq!=None:
+            if self.scores!=None and self.sinput!=None:
+                listVal=[self.__freq,self.__input,self.__core]
+            if self.scores!=None and self.sinput==None:
+                listVal=[self.__freq,self.__input,'None']
+            if self.scores==None and self.sinput!=None:
+                listVal=[self.__freq,'None',self.__core]
+            if self.scores==None and self.sinput==None and self.__axfreq.get_visible()==True:
+                listVal=[self.__freq,'None','None']
+            else:
+                listVal=['None','None','None']
+        if self.scores!=None and self.sfreq==None:
+            if self.sinput!=None:
+                listVal=['None',self.__input,self.__core]
+            elif self.__axcore.get_visible()==False:
+                listVal=['None','None','None']
+            else:
+                listVal=['None','None',self.__core]
+        if self.sinput!=None and self.sfreq==None:
+            if self.scores==None:
+                listVal=['None',self.__input,'None']
+        if self.sinput==None and self.scores==None and self.sfreq==None:
+            listVal=['None','None','None']
+        return listVal
 
 class MainWindow:
     """ Class that read the setup file
@@ -428,7 +503,7 @@ class MainWindow:
             quit()
             ok()"""
 
-    def __init__(self,master,setup,datas,data,conf,saveGraph):
+    def __init__(self,master,setup,datas,data,conf,saveGraph,name):
         """ Create a empty object and initialize attributes and GUI with graphe and initGUI methods.
         :param data: Data to draw"""
         self.__confi=conf
@@ -440,8 +515,8 @@ class MainWindow:
         self.__median=datas.getMedian(data)
         self.__mean=datas.getMean(data)
         self.__saveGraph=saveGraph
+        self.__name=name
         self.datas=data
-        print (self.datas["total_time"])
         self.__axes=['ipmi_power','ipmi_energy']
         self.__mask=[0,0,0]
         self.__label_2=None
@@ -476,7 +551,7 @@ class MainWindow:
         self.__master.configure(bg=self.__setup.colorframe)
         self.MenuBar()
         choice=self.typeGraph()
-        self.__graphe=Graph(data,self.__master,'L')
+        self.__graphe=Graph(data,self.__master,'P',self.__RHeight,self.__RWidth)
         self.graphes(data.getData())
         self.__closebutton = Button(self.__master, text='X', command=self.quit)
         
@@ -687,7 +762,7 @@ class MainWindow:
         listAxesY.append("ipmi_power")
         listAxesY.append("total_time")#self.__confi["data_descriptor"]["values"]
         self.__tkvar2.set('ipmi_energy')
-        self.__tkvar3.set('total_time')
+        self.__tkvar3.set('ipmi_energy')
         popupMenu1=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
         Label(self.__master,text='Axe Y Graphe 1:',justify=LEFT).pack(expand=0,anchor='w')
         popupMenu1.pack(expand=0,anchor='w')
@@ -705,7 +780,7 @@ class MainWindow:
         listAxes.append("ipmi_energy")
         listAxes.append("ipmi_power")
         self.__tkvar1.set('ipmi_power')
-        self.__tkvar4.set('ipmi_power')
+        self.__tkvar4.set('total_time')
         popupMenu=OptionMenu(self.__master,self.__tkvar1,*listAxes)
         Label(self.__master,text='Axe X:',justify=LEFT).pack(expand=0,anchor='w')
         popupMenu.pack(expand=0,anchor='w')
@@ -721,8 +796,6 @@ class MainWindow:
         self.updateGraph()
 
     def change_dropdownAxesY(self,*args):
-        """print('axesY')
-        print(self.datas['frequency'])"""
         self.__graphe.set_axeY(self.__tkvar2.get())
         self.updateGraph()
     
@@ -735,10 +808,18 @@ class MainWindow:
         self.updateGraph()
     
     def save(self):
+        name=self.__name.split("\\")
+        temp=name[6].replace('completo_',' ')
         graph=self.__graphe.getGraph()
-        self.__saveGraph.saveJson("rtview_2.json",self.datas,self.__tkvar1.get(),self.__tkvar4.get(),self.__tkvar2.get(),self.__tkvar3.get())
-        self.__saveGraph.savePDF("rtview_2.pdf",graph,self.__tkvar1.get(),self.__tkvar4.get(),self.__tkvar2.get(),self.__tkvar3.get())
-        #to_json()
+        listeval=self.__graphe.getVal()
+        text=''' '''
+        self.__saveGraph.saveJson(temp,self.datas,self.__tkvar1.get(),self.__tkvar4.get(),self.__tkvar2.get(),self.__tkvar3.get())
+        for i in range(len(self.__confi["data_descriptor"])):
+            print(self.__confi["data_descriptor"]["keys"][i])
+            text = text+'''Filter on '''+self.__confi["data_descriptor"]["keys"][i]+''':'''+str(listeval[i])
+        print(text)
+        graph.text(.1,.1,text)
+        self.__saveGraph.savePDF(temp,graph,self.__tkvar1.get(),self.__tkvar4.get(),self.__tkvar2.get(),self.__tkvar3.get())
 
     def two(self):
         print("Two graphs")

@@ -10,7 +10,7 @@ root=tix.Tk()
 
 def main():
     setup=setupFile()
-    name="d:\Profiles\igauthier\Documents\cours\TFE\completo_rtview_2.json"
+    name="d:\Profiles\igauthier\Documents\cours\TFE\completo_xhpl_2.json"
     datajs=readJson(name)
     datatemp=datajs.read
     datas=datajs.sens[(datajs.sens["sensors"].str.contains("ipmi"))]
@@ -39,7 +39,7 @@ def main():
     setupsoft=setup.read
     root.configure(bg=setup.colorframe)
     saved=SaveData()
-    mainwindow=MainWindow(root,setup,treat3,datas3,datajs.conf,saved)
+    mainwindow=MainWindow(root,setup,treat3,datas3,datajs.conf,saved,name)
     root.mainloop()
 
 class setupFile():
