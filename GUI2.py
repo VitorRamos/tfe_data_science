@@ -149,6 +149,7 @@ class Graph:
         """Display a sliding bar controlling a variable.
         :param val: The variable to modify"""
         print('freq',self.sfreq)
+        print('val',val)
         if self.sfreq!=None:
             print(self.__axfreq.get_visible())
         print('input',self.sinput)
@@ -160,8 +161,11 @@ class Graph:
             self.__core=self.scores.val
         if self.sinput!=None:
             self.__input=self.sinput.val
+        
+        print('sinput',self.__input)
         if self.sfreq!=None and self.__axfreq.get_visible()==True:
             print('frequence',self.__freq)
+            print('axfreq',self.__axfreq.get_visible())
             if self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
                                                 &(self.__data["input"]==self.__input)]
@@ -170,8 +174,9 @@ class Graph:
             elif(self.scores==None and self.sinput!=None and self.__axinput.get_visible()==True)or(self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
             else:
-                self.__data_disp= self.__data_disp[self.__data_disp["frequency"]==self.__freq]
+                self.__data_disp= self.__data[self.__data["frequency"]==self.__freq]
         if self.sinput!=None and self.__axinput.get_visible():
+            print('axinput',self.__axinput.get_visible())
             if self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==True and self.__axfreq.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
                                                 &(self.__data["input"]==self.__input)]
@@ -180,7 +185,7 @@ class Graph:
             elif(self.sfreq==None and self.scores!=None)or(self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==True and self.__axfreq.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["input"]==self.__input)]
             else:
-                self.__data_disp= self.__data_disp[self.__data_disp["input"]==self.__input]
+                self.__data_disp= self.__data[self.__data["input"]==self.__input]
         if self.scores!=None and self.__axcore.get_visible():
             if(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__axinput.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
@@ -360,7 +365,7 @@ class Graph:
 
     def set_axeY1(self, val):
         self.__axesY[1]= val
-        self.updateType()
+        self.updateType('P')
         
     def updateType(self,choice):
         self.__axis1.clear()
@@ -368,6 +373,10 @@ class Graph:
         self.__choice=choice
         temp0=[]
         temp1=[]
+        print('data',self.__data_disp)
+        print('choice',self.__choice)
+        print('axeX',self.__axesX)
+        print('axeY',self.__axesY)
         min1_v= np.argmin(self.__data_disp[self.__axesY[0]])
         max1_v= np.argmax(self.__data_disp[self.__axesY[0]])
         min2_v= np.argmin(self.__data_disp[self.__axesY[1]])
@@ -387,6 +396,7 @@ class Graph:
         self.__axis1.set_title('Graphe 1')
         self.__axis2.set_title('Graphe 2')
         if not self.__data_disp.empty:
+            print('aa')
             if self.__choice == 'L':
                 self.__axis1.plot(self.__data_disp.loc[min1_v][self.__axesX[0]], self.__data_disp.loc[min1_v][self.__axesY[0]], 
                                     c='black', marker = "o",label="Minimum")
@@ -533,7 +543,7 @@ class MainWindow:
         self.__tkvar2=StringVar()
         self.__tkvar3=StringVar()
         self.__tkvar4=StringVar()
-        self.__choice='C'
+        self.__choice='P'
         self.initGUI(datas)
         
     def close_window(self):
