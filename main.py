@@ -4,8 +4,9 @@ import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 from pascaldata import PascalData
 from Data import Treatment
-from GUI2 import MainWindow, Graph
+from GUI import MainWindow, Graph
 from tkinter import tix
+from fpdf import FPDF
 root=tix.Tk()
 
 def main():
@@ -102,12 +103,22 @@ class SaveData():
         test.save_data(name)
         data.to_json(name)
 
-    def savePDF(self,namefile,data,axeX1,axeX2,axeY1,axeY2):
+    def savePDF(self,namefile,data,axeX1,axeX2,axeY1,axeY2,text):
         name=os.path.splitext(namefile)[0]
         name=name+"_axeX1_"+axeX1+"_axeY1_"+axeY1+"_axeX2_"+axeX2+"_axeY2_"+axeY2+".pdf"
         pdftest=PdfPages(name)
         pdftest.savefig(data,bbox_inches='tight')
         pdftest.close()
+        pdf=FPDF()
+        pdf.add_page()
+        pdf.set_xy(0,0)
+        pdf.set_font('arial', 'B', 13.0)
+        texta="Name:"+name+"\n"+text
+        pdf.multi_cell(0, 5,  txt=texta)
+        #pdf.cell(ln=1, h=5.0, align='L', w=0, txt=text, border=0)
+        print(text)
+        pdfName="test.pdf"
+        pdf.output(pdfName,'F')
 
 if __name__=='__main__':
     main()

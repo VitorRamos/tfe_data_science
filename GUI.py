@@ -20,12 +20,15 @@ class Graph:
             simpleGraphe()
             twoGraphes()"""
 
-    def __init__(self,data,master,choice):
+    def __init__(self,data,master,choice,heightscr,widthscr):
         """ Create a empty object and initialize attributes."""
         self.__master=master
         self.__test=data
         self.__data=data.getData()
-        self.__fig = Figure(figsize=(12,7), dpi=50)
+        heightscr=heightscr/120
+        widthscr=widthscr/180
+        self.__fig = Figure(figsize=(widthscr,heightscr), dpi=100)
+        self.__fig.subplots_adjust(bottom=0.25,hspace=0.4)
         self.__canvas=FigureCanvasTkAgg(self.__fig,master=self.__master)
         self.__data_disp= self.__data
         self.__canvas.get_tk_widget().place(x=650,y=10)
@@ -42,39 +45,49 @@ class Graph:
         self.scores=None
         self.sinput=None
         min_v= np.argmin(self.__data_disp[self.__axesY])
+        max_v= np.argmax(self.__data_disp[self.__axesY])
+        mean= self.__data_disp[self.__axesY].mean()
+        median= self.__data_disp[self.__axesY].median()
+        for i in range (len(self.__data_disp[self.__axesX])):
+            temp.append(self.__median[self.__axesY])
+        self.__axis= self.__fig.add_subplot(111)
         if self.__choice == 'L':
-            markers=[[self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__min['ipmi_energy']].index[0]],
-                [self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__max['ipmi_energy']].index[0]],
-                [self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__median['ipmi_energy']].index[0]]
+            markers=[[self.__data_disp.loc[self.__data_disp[self.__axesX]==self.__min[self.__axesX]].index[0]],
+                [self.__data_disp.loc[self.__data_disp[self.__axesX]==self.__max[self.__axesX]].index[0]],
+                [self.__data_disp.loc[self.__data_disp[self.__axesX]==self.__median[self.__axesX]].index[0]]
                 ]
-            self.__axis=self.__fig.add_subplot(111)
-            self.__axis.plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"],marker='o',ls='-')
+            self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX], self.__data_disp.loc[min_v][self.__axesY], 
+                                    c='black', marker = "o",label="Minimum")
+            self.__axis.plot(self.__data_disp.loc[max_v][self.__axesX], self.__data_disp.loc[max_v][self.__axesY], 
+                                    c='green', marker = "o", label="Maximum")
+            self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [mean, mean], 
+                                    c='red',label="Mean")
+            self.__axis.plot(self.__data_disp[self.__axesX], temp,c='red', marker = "P",label="Median")
+            self.__axis.plot(self.__data_disp[self.__axesX],self.__data_disp[self.__axesY], marker = "x", ls='-')
         if self.__choice == 'B':    
-            self.__axis= self.__fig.add_subplot(111)
             N=len(self.__data_disp["ipmi_energy"])
             ind = np.arange(N)
             width = 0.35
             self.__axis.bar(ind,self.__data_disp["ipmi_energy"],width)
         if self.__choice == 'P':
-            self.__axis=self.__fig.add_subplot(111)
-            self.__axis.scatter(self.__data_disp.loc[min_v][self.__axesX], self.__data_disp.loc[min_v][self.__axesY],c='red'
-                , marker = "o")
-            max_v= np.argmax(self.__data_disp[self.__axesY])
-            self.__axis.scatter(self.__data_disp.loc[max_v][self.__axesX], self.__data_disp.loc[max_v][self.__axesY], c='green',
-                                    marker = "o")
-            self.__axis.scatter(self.__data_disp.loc[self.__data_disp['ipmi_energy']==self.__max['ipmi_energy']]['ipmi_power'],
-                self.__max['ipmi_energy'],c='red', marker = "s")
-            for i in range (len(self.__data_disp['ipmi_power'])):
-                temp.append(self.__median['ipmi_energy'])
-            self.__axis.scatter(self.__data_disp['ipmi_power'], temp,c='red', marker = "P")
-            """self.__axis.plot([self.__min["ipmi_power"], self.__max["ipmi_power"]], [self.__median['ipmi_energy'], 
-                            self.__median['ipmi_energy']], color = 'green', linestyle = 'solid')
-            self.__axis.scatter(self.__data_disp.loc[i]['ipmi_power'],
-                    self.__median['ipmi_energy'],c='green', marker = "P")
-            self.__axis.plot([self.__min["ipmi_power"], self.__max["ipmi_power"]],[self.__mean['ipmi_energy'],self.__mean['ipmi_energy']],
-                color='red', linestyle = 'solid')"""
-            self.__axis.scatter(self.__data_disp["ipmi_power"],self.__data_disp["ipmi_energy"], marker = "x")
-            plt.show()
+            self.__axis.scatter(self.__data_disp[self.__axesX],self.__data_disp[self.__axesY], marker = "x")
+            self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()],
+                                [self.__data_disp.loc[min_v][self.__axesY],self.__data_disp.loc[min_v][self.__axesY]], 
+                                c='black', marker = "o",label="Minimum")
+            self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()],
+                                [self.__data_disp.loc[max_v][self.__axesY],self.__data_disp.loc[max_v][self.__axesY]],
+                                c='green', marker = "o", label="Maximum")
+            self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [mean, mean], 
+                                c='red',label="Mean")
+            self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [median,median],
+                                c='cyan', marker = "P",label="Median")
+        self.__axis.set_xlabel(self.__axesX)
+        self.__axis.set_ylabel(self.__axesY)
+        self.__box = self.__axis.get_position()
+        self.__pos=self.__box.width * 0.7
+        self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
+        self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.show()
         self.__graph=self.simpleGraphe(self.__sliders)
         print('sliders',self.__sliders)#
         #self.__graph=self.twoGraphes(self.__sliders)
@@ -280,11 +293,19 @@ class Graph:
     def updateType(self,choice):
         self.__axis.clear()
         self.__choice=choice
+        min_v= np.argmin(self.__data_disp[self.__axesY])
+        max_v= np.argmax(self.__data_disp[self.__axesY])
+        mean= self.__data_disp[self.__axesY].mean()
+        median= self.__data_disp[self.__axesY].median()
         if self.__choice == 'L':
-            self.__axis = self.__fig.add_subplot(111)
-            self.__axis.plot(self.__data_disp["ipmi_energy"],self.__data_disp["ipmi_power"],marker='o', 
-                ls='-')
-            #self.__axis, = self.__fig.plot()
+            self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX[0]], self.__data_disp.loc[min_v][self.__axesY[0]], 
+                                    c='black', marker = "o",label="Minimum")
+            self.__axis.plot(self.__data_disp.loc[max_v][self.__axesX[0]], self.__data_disp.loc[max_v][self.__axesY[0]], 
+                                    c='green', marker = "o", label="Maximum")
+            self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [mean, mean], 
+                                    c='red',label="Mean")
+            self.__axis.plot(self.__data_disp[self.__axesX[0]], temp0,c='red', marker = "P",label="Median")
+            self.__axis.plot(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x", ls='-')
         if self.__choice == 'B':    
             self.__axis= self.__fig.add_subplot(111)
             N=len(self.__data_disp["ipmi_energy"])
@@ -294,15 +315,21 @@ class Graph:
         if self.__choice == 'P':
             if not self.__data_disp.empty:
                 min_v= np.argmin(self.__data_disp[self.__axesY])
-                self.__axis.scatter(self.__data_disp.loc[min_v][self.__axesX], self.__data_disp.loc[min_v][self.__axesY], c='black',
-                                    marker = "o")
-                max_v= np.argmax(self.__data_disp[self.__axesY])
-                self.__axis.scatter(self.__data_disp.loc[max_v][self.__axesX], self.__data_disp.loc[max_v][self.__axesY], c='green',
-                                    marker = "o")
-                mean= self.__data_disp[self.__axesY].mean()
-                self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [mean, mean], c='red',
-                                label="mean")
-            self.__axis.scatter(self.__data_disp[self.__axesX],self.__data_disp[self.__axesY], marker = "x")
+                self.__axis.scatter(self.__data_disp[self.__axesX],self.__data_disp[self.__axesY], marker = "x")
+                self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], 
+                                    [self.__data_disp.loc[min_v][self.__axesY],self.__data_disp.loc[min_v][self.__axesY]], 
+                                        c='black', marker = "o",label="Minimum")
+                self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], 
+                                    [self.__data_disp.loc[max_v][self.__axesY],self.__data_disp.loc[max_v][self.__axesY]], 
+                                        c='green', marker = "o", label="Maximum")
+                self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()],[mean, mean], 
+                                    c='red',label="Mean")
+                self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [median,median],
+                                    c='cyan', marker = "P",label="Median")
+            self.__axis.set_xlabel(self.__axesX)
+            self.__axis.set_ylabel(self.__axesY)
+            self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
+            self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         self.__a=self.__fig.canvas.draw_idle()
 
 class MainWindow:
@@ -317,7 +344,7 @@ class MainWindow:
             quit()
             ok()"""
 
-    def __init__(self,master,setup,datas,data,conf):
+    def __init__(self,master,setup,datas,data,conf,saved,name):
         """ Create a empty object and initialize attributes and GUI with graphe and initGUI methods.
         :param data: Data to draw"""
         self.__setup=setup
@@ -356,11 +383,11 @@ class MainWindow:
         self.__RWidth=self.__master.winfo_screenwidth()
         self.__RHeight=self.__master.winfo_screenheight()
         self.__master.geometry(str(self.__RWidth)+"x"+str(self.__RHeight))
-        self.__master.title('Test')
+        self.__master.title('Gecko')
         self.__master.configure(bg=self.__setup.colorframe)
         self.MenuBar()
         choice=self.typeGraph()
-        self.__graphe=Graph(data,self.__master,'L')
+        self.__graphe=Graph(data,self.__master,'L',self.__RHeight,self.__RWidth)
         self.graphes(data.getData())
         self.__closebutton = Button(self.__master, text='X', command=self.quit)
         
@@ -384,11 +411,11 @@ class MainWindow:
             if self.__label_2==None:
                 self.__mask[0]=1
                 self.__label_2=Label(self.__master,text='Cores',justify=LEFT)
-                self.__label_2.place(x=150,y=450)
+                self.__label_2.place(x=10,y=450)
                 self.__label_3=Label(self.__master,text='Minimum : '+str(self.__min["cores"]),justify=LEFT)
-                self.__label_3.place(x=150,y=470)
+                self.__label_3.place(x=10,y=470)
                 self.__label_4=Label(self.__master,text='Maximum : '+str(self.__max["cores"]),justify=LEFT)
-                self.__label_4.place(x=150,y=490)
+                self.__label_4.place(x=10,y=490)
             else:
                 self.__mask[0]=0
                 self.__label_2.destroy()
@@ -399,11 +426,11 @@ class MainWindow:
             if self.__label_5==None:
                 self.__mask[1]=1
                 self.__label_5=Label(self.__master,text='Frequency',justify=LEFT)
-                self.__label_5.place(x=150,y=510)
+                self.__label_5.place(x=10,y=510)
                 self.__label_6=Label(self.__master,text='Minimum : '+str(self.__min["frequency"]),justify=LEFT)
-                self.__label_6.place(x=150,y=530)
+                self.__label_6.place(x=10,y=530)
                 self.__label_7=Label(self.__master,text='Maximum : '+str(self.__max["frequency"]),justify=LEFT)
-                self.__label_7.place(x=150,y=550)
+                self.__label_7.place(x=10,y=550)
             else:
                 self.__mask[1]=0
                 self.__label_5.destroy()
@@ -414,11 +441,11 @@ class MainWindow:
             if self.__label_8==None:
                 self.__mask[2]=1
                 self.__label_8=Label(self.__master,text='Input',justify=LEFT)
-                self.__label_8.place(x=150,y=570)
+                self.__label_8.place(x=10,y=570)
                 self.__label_9=Label(self.__master,text='Minimum : '+str(self.__min["input"]),justify=LEFT)
-                self.__label_9.place(x=150,y=590)
+                self.__label_9.place(x=10,y=590)
                 self.__label_10=Label(self.__master,text='Maximum : '+str(self.__max["input"]),justify=LEFT)
-                self.__label_10.place(x=150,y=610)
+                self.__label_10.place(x=10,y=610)
             else:
                 self.__mask[2]=0
                 self.__label_8.destroy()
@@ -591,3 +618,4 @@ class MainWindow:
         print(self.datas['frequency'])"""
         self.__graphe.set_axeY(self.__tkvar2.get())
         self.updateGraph()
+    

@@ -7,7 +7,7 @@ from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 from matplotlib.widgets import Slider
-from tkinter import filedialog, messagebox
+#from tkinter import filedialog, messagebox
 from tkinter import *
 
 class Graph:
@@ -142,7 +142,6 @@ class Graph:
         self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
         self.__axis2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
-        #self.__graph=self.simpleGraphe(self.__sliders)
         self.__graph=self.twoGraphes(self.__sliders)
 
     def sliders_on_changed(self,val):
@@ -348,7 +347,6 @@ class Graph:
         if self.__sliders[2]==1:
             if self.sinput!=None:
                 self.sinput.reset()
-        #graphini=self.simpleGraphe([0,0,0])
         graphini=self.twoGraphes([0,0,0])
         self.updateType('P')
        
@@ -557,7 +555,8 @@ class MainWindow:
         self.__RWidth=self.__master.winfo_screenwidth()
         self.__RHeight=self.__master.winfo_screenheight()
         self.__master.geometry(str(self.__RWidth)+"x"+str(self.__RHeight))
-        self.__master.title('Test')
+        self.__master.title('Gecko')
+        print(self.__setup.colorframe)
         self.__master.configure(bg=self.__setup.colorframe)
         self.MenuBar()
         choice=self.typeGraph()
@@ -650,7 +649,6 @@ class MainWindow:
                 self.__label_3.place_forget()
             if self.__label_4!=None:
                 self.__label_4.place_forget()
-        #self.__graphe.simpleGraphe(self.__mask)
         self.__graphe.twoGraphes(self.__mask)
                                     
     def MenuBar(self):
@@ -828,8 +826,8 @@ class MainWindow:
             print(self.__confi["data_descriptor"]["keys"][i])
             text = text+'''Filter on '''+self.__confi["data_descriptor"]["keys"][i]+''':'''+str(listeval[i])
         print(text)
-        graph.text(.1,.1,text)
-        self.__saveGraph.savePDF(temp,graph,self.__tkvar1.get(),self.__tkvar4.get(),self.__tkvar2.get(),self.__tkvar3.get())
+        #graph.text(.1,.1,text)
+        self.__saveGraph.savePDF(temp,graph,self.__tkvar1.get(),self.__tkvar4.get(),self.__tkvar2.get(),self.__tkvar3.get(),text)
 
     def two(self):
         print("Two graphs")
