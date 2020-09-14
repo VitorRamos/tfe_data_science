@@ -7,7 +7,7 @@ from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 from matplotlib.widgets import Slider
-#from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox
 from tkinter import *
 
 class Graph:
