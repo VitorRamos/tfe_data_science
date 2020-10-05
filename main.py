@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 from pascaldata import PascalData
 from Data import Treatment
-from GUI3 import MainWindow, Graph1,Graph2
+from GUI5 import MainWindow, Graph#1,Graph2
 from tkinter import tix
 from fpdf import FPDF
 root=tix.Tk()
