@@ -2,8 +2,6 @@ import pandas as pd
 import inspect,os,matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib as mpl
-import matplotlib.ticker as ticker
 matplotlib.use('TkAgg')
 from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -11,8 +9,6 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import Slider
 from tkinter import filedialog, messagebox
 from tkinter import *
-from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-from mpl_toolkits.axes_grid1.colorbar import colorbar
 import seaborn as sns
 
 class Graph:
@@ -27,7 +23,6 @@ class Graph:
 
     def __init__(self,data,master,choice,heightscr,widthscr):
         """ Create a empty object and initialize attributes."""
-        #sns.set()
         self.__master=master
         self.__test=data
         self.__data=data.getData()
@@ -37,7 +32,7 @@ class Graph:
         self.__fig.subplots_adjust(bottom=0.25,hspace=0.4)
         self.__canvas=FigureCanvasTkAgg(self.__fig,master=self.__master)
         self.__data_disp= self.__data
-        self.__canvas.get_tk_widget().place(x=590,y=10)
+        self.__canvas.get_tk_widget().place(x=650,y=10)
         self.__max=data.getMax(self.__data_disp)
         self.__min=data.getMin(self.__data_disp)
         self.__median=data.getMedian(self.__data_disp)
@@ -59,23 +54,10 @@ class Graph:
             temp.append(self.__median[self.__axesY])
         self.__axis= self.__fig.add_subplot(111)
         if self.__choice == 'P':
-            #sns.despine(ax=self.__axis,right=True)
-            datab = pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
-            datapivot = datab.pivot("X","Y","Z").round(3)
-            #heat = sns.heatmap(datapivot,cbar=False)#
-            #self.__cbar = self.__fig.colorbar(self.__axis.imshow(datapivot))#,ax=self.__axis,cax=[0]self.__axis.heat
-            ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)
-            majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
-            ax.xaxis.set_major_formatter(majorFormatter)
-            ax.yaxis.set_major_formatter(majorFormatter)
-            # split axes of heatmap to put colorbar
-            ax_divider = make_axes_locatable(ax)
-            # define size and padding of axes for colorbar
-            cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
-            # make colorbar for heatmap. 
-            # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
-            self.__testz=colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
-            """self.__axis=self.__axis.imshow(self.__data_disp)
+            datab=pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
+            datapivot=datab.pivot("X","Y","Z")
+            self.__axis.contour(datapivot)
+            """self.__axis.imshow(self.__data_disp)
             self.__axis.set_xticks(np.arange(len(self.__data_disp[self.__axesX])))
             self.__axis.set_yticks(np.arange(len(self.__data_disp[self.__axesY])))
             self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()],
@@ -87,13 +69,13 @@ class Graph:
             self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [mean, mean], 
                                 c='red',label="Mean")
             self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [median,median],
-                                c='cyan', marker = "P",label="Median")
+                                c='cyan', marker = "P",label="Median")"""
         self.__axis.set_xticklabels(self.__axesX)
         self.__axis.set_yticklabels(self.__axesY)
         self.__box = self.__axis.get_position()
         self.__pos=self.__box.width * 0.7
         self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
-        self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))"""
+        self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
         #self.__graph=self.simpleGraphe(self.__sliders)
         print('sliders',self.__sliders)#
@@ -303,7 +285,6 @@ class Graph:
         
     def updateType(self,choice):
     
-        #sns.set()
         self.__axis.clear()
         self.__choice=choice
         temp=[]
@@ -315,28 +296,13 @@ class Graph:
             temp.append(self.__median[self.__axesY])
         mean= self.__data_disp[self.__axesY].mean()
         median= self.__data_disp[self.__axesY].median()
-        name='''Graph of '''+self.__axesY+''' in relation of '''+self.__axesX+''' and '''+self.__axesZ
-        self.__axis.set_title(name)
+        self.__axis.set_title('Graphe')
         if not self.__data_disp.empty:
             if self.__choice == 'P':
-                #sns.despine(ax=self.__axis,right=True)
-                datab=pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],
-                        'Z':self.__data_disp[self.__axesZ]}).round(3)
+                datab=pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
                 datapivot=datab.pivot("X","Y","Z")
-                #heat=sns.heatmap(datapivot,cbar_ax=self.__cbar)
-                #cbar = self.__fig.colorbar(self.__axis.imshow(datapivot),ax=self.__axis)#self.__axis.heat,cax=[0]
-                ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False, fmt='.2f')
-                """majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
-                ax.xaxis.set_major_formatter(majorFormatter)
-                ax.yaxis.set_major_formatter(majorFormatter)"""
-                # split axes of heatmap to put colorbar
-                ax_divider = make_axes_locatable(ax)
-                # define size and padding of axes for colorbar
-                cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
-                # make colorbar for heatmap. 
-                # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
-                self.__testz=colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
-                """self.__axis=self.__axis.imshow(self.__data_disp)"""
+                self.__axis.contour(datapivot)
+                """self.__axis.imshow(self.__data_disp)"""
                 """self.__axis.set_xticks(np.arange(len(self.__data_disp[self.__axesX])))
                 self.__axis.set_yticks(np.arange(len(self.__data_disp[self.__axesY])))
                 self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], 
@@ -350,9 +316,9 @@ class Graph:
                 self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [median,median],
                                         c='cyan', marker = "P",label="Median")
             self.__axis.set_xticklabels(self.__axesX)
-            self.__axis.set_yticklabels(self.__axesY)
+            self.__axis.set_yticklabels(self.__axesY)"""
             self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
-            self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))"""
+            self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         self.__a=self.__fig.canvas.draw_idle()
 
     def getGraph(self):
@@ -461,7 +427,6 @@ class MainWindow:
                 command=lambda index=i:self.update_text(var,index)).pack(expand=0,anchor='w')
         self.choiceAxesX()
         self.choiceAxesY()
-        self.choiceAxesZ()
         
     def update_text(self,var,i):
         if i==0:
@@ -652,7 +617,7 @@ class MainWindow:
         listAxesZ.append("ipmi_energy")
         listAxesZ.append("ipmi_power")
         listAxesZ.append("total_time")
-        self.__tkvar3.set('cores')
+        self.__tkvar3.set('ipmi_energy')
         popupMenu=OptionMenu(self.__master,self.__tkvar3,*listAxesZ)
         Label(self.__master,text='Axe Z:',justify=LEFT).pack(expand=0,anchor='w')
         popupMenu.pack(expand=0,anchor='w')
@@ -665,7 +630,7 @@ class MainWindow:
         listAxesY.append("ipmi_energy")
         listAxesY.append("ipmi_power")
         listAxesY.append("total_time")
-        self.__tkvar2.set('frequency')
+        self.__tkvar2.set('ipmi_energy')
         popupMenu=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
         Label(self.__master,text='Axe Y:',justify=LEFT).pack(expand=0,anchor='w')
         popupMenu.pack(expand=0,anchor='w')

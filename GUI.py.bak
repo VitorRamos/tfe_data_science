@@ -8,9 +8,7 @@ from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 from matplotlib.widgets import Slider
-#from tkinter import filedialog, messagebox
-from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-from mpl_toolkits.axes_grid1.colorbar import colorbar
+from tkinter import filedialog, messagebox
 from tkinter import *
 
 class Graph:
@@ -44,7 +42,7 @@ class Graph:
         self.__choice=choice
         self.__axesX = ["ipmi_power","total_time"]
         self.__axesY = ["ipmi_energy","ipmi_energy"]
-        self.__axesZ = ["total_time","ipmi_energy"]
+        self.__axesZ = ["ipmi_energy","ipmi_energy"]
         self.__numberGraph='1'
         self.__sliders=[0,0,0]
         self.__axis1=self.__fig.add_subplot(211)
@@ -60,7 +58,7 @@ class Graph:
         mean= self.__data_disp[self.__axesY[0]].mean()
         median= self.__data_disp[self.__axesY[0]].median()
         for i in range (len(self.__data_disp[self.__axesX[0]])):
-            temp.append(self.__median[self.__axesY[0]])
+            temp.append(self.__median[self.__axesY])
         self.__axis= self.__fig.add_subplot(111)
         if self.__choice == 'H':
             self.__axis.hist(self.__data_disp[self.__axesX[0]],histtype='bar',align='left',rwidth=0.5,label=self.__axesX[0])
@@ -69,9 +67,9 @@ class Graph:
                 [self.__data_disp.loc[self.__data_disp[self.__axesX[0]]==self.__max[self.__axesX[0]]].index[0]],
                 [self.__data_disp.loc[self.__data_disp[self.__axesX[0]]==self.__median[self.__axesX[0]]].index[0]]
                 ]
-            self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX[0]], self.__data_disp.loc[min_v][self.__axesY[0]], 
+            self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX[0]], self.__data_disp.loc[min_v][self.__axesY], 
                                     c='black', marker = "o",label="Minimum")
-            self.__axis.plot(self.__data_disp.loc[max_v][self.__axesX[0]], self.__data_disp.loc[max_v][self.__axesY[0]], 
+            self.__axis.plot(self.__data_disp.loc[max_v][self.__axesX[0]], self.__data_disp.loc[max_v][self.__axesY], 
                                     c='green', marker = "o", label="Maximum")
             self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [mean, mean], 
                                     c='red',label="Mean")
@@ -83,12 +81,12 @@ class Graph:
             ind = np.arange(N)
             width = 0.35
             self.__axis.bar(ind,self.__data_disp[self.__axesY[0]],width,tick_label=self.__axesY[0])
-            #self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesX[0]],width)
-            #self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesY[0]], width, color='black')
-            #self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesX[0]], width)
-            #self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesY[0]], width, color='green')
-            #self.__axis.bar(ind,mean,width, color='red',tick_label="Mean")
-            #self.__axis.bar(ind,temp,width,color='red',tick_label="Median")
+            self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesX[0]],width)
+            self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesY[0]], width, color='black')
+            self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesX[0]], width)
+            self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesY[0]], width, color='green')
+            self.__axis.bar(ind,mean,width, color='red',tick_label="Mean")
+            self.__axis.bar(ind,temp,width,color='red',tick_label="Median")
             self.__axis.bar(ind,self.__data_disp[self.__axesX[0]],width,tick_label=self.__axesX[0])
         if self.__choice == 'P':
             self.__axis.scatter(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x")
@@ -103,8 +101,7 @@ class Graph:
             self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [median,median],
                                 c='cyan', marker = "P",label="Median")
         if self.__choice == 'M':
-            datab = pd.DataFrame({'X':self.__data_disp[self.__axesX[0]],'Y':self.__data_disp[self.__axesY[0]],
-                        'Z':self.__data_disp[self.__axesZ[0]]})
+            datab = pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
             datapivot = datab.pivot("X","Y","Z").round(3)
             ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)
             majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
@@ -167,13 +164,13 @@ class Graph:
             if(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__axinput.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
                                                 &(self.__data["input"]==self.__input)]
-            elif(self.sfreq!=None and self.sinput==None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__axinput.get_visible()==False):
+            elif(self.sfreq!=None and self.sinput==None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__input.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)]
-            elif(self.sfreq==None and self.sinput!=None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==False and self.__axinput.get_visible()==True):
+            elif(self.sfreq==None and self.sinput!=None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==False and self.__input.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["input"]==self.__input)]
             else:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)]
-        self.updateType(self.__choice,self.__numberGraph)
+        self.updateType(self.__choice)
 
     def simpleGraphe(self,sliders):
         """The graph to draw.
@@ -309,6 +306,7 @@ class Graph:
         self.__canvas.draw()
 
     def reset(self):
+        self.__choice='P'
         if self.__sliders[0]==1:
             if self.sfreq!=None:
                 self.sfreq.reset()
@@ -320,7 +318,7 @@ class Graph:
                 self.sinput.reset()
         #graphini=self.simpleGraphe([0,0,0])
         graphini=self.twoGraphes([0,0,0])
-        #self.updateType('P',2)
+        self.updateType('P')
        
     def set_axeX(self, val):
         self.__axesX[0]= val
@@ -336,7 +334,7 @@ class Graph:
 
     def set_axeY1(self, val):
         self.__axesY[1] = val
-        #self.updateType('P')
+        self.updateType('P')
     
     def set_axeZ1(self, val):
         self.__axesZ[1] = val
@@ -355,61 +353,52 @@ class Graph:
             self.__canvas.get_tk_widget().place(x=590,y=10)
             self.__axis=self.__fig.add_subplot(111)
             for i in range (len(self.__data_disp[self.__axesX[0]])):
-                temp.append(self.__median[self.__axesY[0]])
+                temp.append(self.__median[self.__axesY])
             mean= self.__data_disp[self.__axesY[0]].mean()
             median= self.__data_disp[self.__axesY[0]].median()
             name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]
             self.__axis.set_title(name)
             if not self.__data_disp.empty:
-                print('test',self.__choice)
                 if self.__choice == 'H':    
-                    self.__axis.hist(self.__data_disp[self.__axesX[0]],histtype='bar',align='left',rwidth=0.5,label=self.__axesX[0])
+                    self.__axis.hist(self.__data_disp[self.__axesX],histtype='bar',align='left',rwidth=0.5,label=self.__axesX)
                 if self.__choice == 'L':
-                    self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX[0]], self.__data_disp.loc[min_v][self.__axesY[0]], 
+                    self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX], self.__data_disp.loc[min_v][self.__axesY], 
                                     c='black', marker = "o",label="Minimum")
-                    self.__axis.plot(self.__data_disp.loc[max_v][self.__axesX[0]], self.__data_disp.loc[max_v][self.__axesY[0]], 
+                    self.__axis.plot(self.__data_disp.loc[max_v][self.__axesX], self.__data_disp.loc[max_v][self.__axesY], 
                                     c='green', marker = "o", label="Maximum")
-                    self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [mean, mean], 
+                    self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [mean, mean], 
                                     c='red',label="Mean")
-                    self.__axis.plot(self.__data_disp[self.__axesX[0]], temp,c='red', marker = "P",label="Median")
-                    self.__axis.plot(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x", ls='-')
+                    self.__axis.plot(self.__data_disp[self.__axesX], temp,c='red', marker = "P",label="Median")
+                    self.__axis.plot(self.__data_disp[self.__axesX],self.__data_disp[self.__axesY], marker = "x", ls='-')
                 if self.__choice == 'B':    
-                    N=len(self.__data_disp[self.__axesX[0]])
+                    N=len(self.__data_disp[self.__axesX])
                     #N=N+4
                     ind = np.arange(N)
                     width = 0.35
-                    self.__axis.bar(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]],width,align='center')
-                    """self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesX[0]],width),tick_label=self.__axesY[0]
-                    #self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesY[0]], width, color='black')
-                    #self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesX[0]], width)
-                    #self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesY[0]], width, color='green')
-                    #self.__axis.bar(ind,mean,width, color='red',tick_label="Mean")
-                    #self.__axis.bar(ind,temp,width,color='red',tick_label="Median"),tick_label=self.__axesX[0],ind
-                    #self.__axis.bar(ind,width)"""
+                    self.__axis.bar(ind,self.__data_disp[self.__axesY],width,tick_label=self.__axesY)
+                    self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesX],width)
+                    self.__axis.bar(ind,self.__data_disp.loc[min_v][self.__axesY], width, color='black')
+                    self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesX], width)
+                    self.__axis.bar(ind,self.__data_disp.loc[max_v][self.__axesY], width, color='green')
+                    self.__axis.bar(ind,mean,width, color='red',tick_label="Mean")
+                    self.__axis.bar(ind,temp,width,color='red',tick_label="Median")
+                    self.__axis.bar(ind,self.__data_disp[self.__axesX],width,tick_label=self.__axesX)
                 if self.__choice == 'P':
-                    self.__axis.scatter(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x")
-                    self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], 
-                                    [self.__data_disp.loc[min_v][self.__axesY[0]],self.__data_disp.loc[min_v][self.__axesY[0]]], 
+                    self.__axis.scatter(self.__data_disp[self.__axesX],self.__data_disp[self.__axesY], marker = "x")
+                    self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], 
+                                    [self.__data_disp.loc[min_v][self.__axesY],self.__data_disp.loc[min_v][self.__axesY]], 
                                         c='black', marker = "o",label="Minimum")
-                    self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], 
-                                    [self.__data_disp.loc[max_v][self.__axesY[0]],self.__data_disp.loc[max_v][self.__axesY[0]]], 
+                    self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], 
+                                    [self.__data_disp.loc[max_v][self.__axesY],self.__data_disp.loc[max_v][self.__axesY]], 
                                         c='green', marker = "o", label="Maximum")
-                    self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()],[mean, mean], 
+                    self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()],[mean, mean], 
                                         c='red',label="Mean")
-                    self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [median,median],
+                    self.__axis.plot([self.__data_disp[self.__axesX].min(), self.__data_disp[self.__axesX].max()], [median,median],
                                         c='cyan', marker = "P",label="Median")
                 if self.__choice == 'M':
-                    """datab = pd.DataFrame({'X':self.__data_disp[self.__axesX[0]],'Y':self.__data_disp[self.__axesY[0]],'Z':self.__data_disp[self.__axesZ[0]]})
+                    datab = pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
                     datapivot = datab.pivot("X","Y","Z").round(3)
-                    ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)"""
-                    print('before',self.__data_disp[[self.__axesX[0],self.__axesY[0]]])
-                    #test=self.__data_disp[[self.__axesX[0],self.__axesY[0]]].to_numpy()testa,, values='Value'[self.__axesZ[0]]
-                    test=pd.pivot_table(self.__data_disp, index=self.__axesX[0], columns=self.__axesY[0], aggfunc=np.count_nonzero)
-                    test=test.fillna(0)
-                    print('after',test.shape)
-                    testa=self.__data_disp[self.__axesZ[0]].to_numpy()
-                    a=self.__axis.pcolormesh(test,cmap='copper')
-                    #anim = animation.FuncAnimation(fig, animate, frames = range(2,155), blit = False)
+                    ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)
                     majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
                     ax.xaxis.set_major_formatter(majorFormatter)
                     ax.yaxis.set_major_formatter(majorFormatter)
@@ -421,11 +410,8 @@ class Graph:
                     # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
                     colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
                 print('data_disp[self.__axesY]',self.__data_disp[self.__axesY])    
-                self.__axis.set_xlabel(self.__axesX[0])
-                if self.__choice == 'H':
-                    self.__axis.set_ylabel('Samples')
-                else:
-                    self.__axis.set_ylabel(self.__axesY[0])
+                self.__axis.set_xlabel(self.__axesX)
+                self.__axis.set_ylabel(self.__axesY)
                 self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
                 self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         if self.__numberGraph == '2':
@@ -481,12 +467,10 @@ class Graph:
                     self.__axis2.plot(self.__data_disp[self.__axesX[1]], self.__data_disp[self.__axesY[1]],c='red', marker = "o", ls='-')
                 if self.__choice == 'B':    
                     N=len(self.__data_disp[self.__axesX[0]])
-                    #N=N+4
+                    N=N+4
                     ind = np.arange(N)
                     width = 0.35
-                    self.__axis1.bar(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]],width,align='center')
-                    self.__axis2.bar(self.__data_disp[self.__axesX[1]],self.__data_disp[self.__axesY[1]],width,align='center')
-                    """self.__axis1.bar(ind,self.__data_disp[self.__axesY[0]],width,tick_label=self.__axesY[0])
+                    self.__axis1.bar(ind,self.__data_disp[self.__axesY[0]],width,tick_label=self.__axesY[0])
                     self.__axis1.bar(ind,self.__data_disp.loc[min1_v][self.__axesX[0]],width)
                     self.__axis1.bar(ind,self.__data_disp.loc[min1_v][self.__axesY[0]], width, color='black')
                     self.__axis1.bar(ind,self.__data_disp.loc[max1_v][self.__axesX[0]], width)
@@ -501,7 +485,7 @@ class Graph:
                     self.__axis2.bar(ind,self.__data_disp.loc[max1_v][self.__axesY[1]],width, color='green', tick_label="Maximum")
                     self.__axis2.bar(ind,mean2,width, color='red',tick_label="Mean")
                     self.__axis2.bar(ind, temp1,width,color='red', tick_label="Median")
-                    self.__axis2.bar(ind,self.__data_disp[self.__axesX[1]],width,tick_label=self.__axesX[1])"""
+                    self.__axis2.bar(ind,self.__data_disp[self.__axesX[1]],width,tick_label=self.__axesX[1])
                 if self.__choice == 'P':
                     self.__axis1.scatter(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]], marker = "x")
                     self.__axis1.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], 
@@ -622,19 +606,11 @@ class MainWindow:
         self.__label_8=None
         self.__label_9=None
         self.__label_10=None
-        self.__popupMenu1=None
-        self.__popupMenu2=None
-        self.__popupMenu3=None
-        self.__popupMenu4=None
-        self.__popupMenu5=None
-        self.__popupMenu6=None
         self.__tkvar=StringVar()
         self.__tkvar1=StringVar()
         self.__tkvar2=StringVar()
         self.__tkvar3=StringVar()
         self.__tkvar4=StringVar()
-        self.__tkvar5=StringVar()
-        self.__tkvar6=StringVar()
         self.__choice='P'
         self.initGUI(datas)
         
@@ -670,11 +646,8 @@ class MainWindow:
                 variable=lambda index=i:var[index],onvalue=1,offvalue=0,bg='#4f81bd',anchor='w',justify='left',
                 command=lambda index=i:self.update_text(var,index)).pack(expand=0,anchor='w')
         self.choiceAxesX()
-        print('choice',self.__choice)
-        if self.__choice != 'H':
-            self.choiceAxesY()
-        if self.__choice == 'M':
-            self.choiceAxesZ()
+        self.choiceAxesY()
+        self.choiceAxesZ()
         
     def update_text(self,var,i):
         if i==0:
@@ -777,10 +750,9 @@ class MainWindow:
         self.__filemenu.add_command(label="Exit", command=self.quit)
     
     def reset(self):
-        self.uncheckall(6,self.__cbs)
         self.__graphe.reset()
         self.update_text(None,3)
-        self.updateGraph()
+        self.uncheckall(6,self.__cbs)
 
     def quit(self):
         """This method is called by the pushing on the 'Exit' menu to close the
@@ -827,55 +799,13 @@ class MainWindow:
         if checktest == 5 :
             self.__choice = 'M'
         else:
-            self.__choice = 'P'
+            self.__choice = 'L'
+        self.updateGraph()
 
     def updateGraph(self):
-        #self.choiceAxesX()
-        print('choice',self.__choice)
-        if self.__choice != 'H':
-            if self.__popupMenu2 != None:
-                print('ajout2')
-                self.__Label2.pack(expand=0,anchor='w')
-                self.__popupMenu2.pack(expand=0,anchor='w')
-            else:
-                self.choiceAxesY()
-            if self.__numberScreen == '2':
-                if self.__popupMenu5 != None:
-                    self.__Label5.pack(expand=0,anchor='w')
-                    self.__popupMenu5.pack(expand=0,anchor='w')
-                else:
-                    self.choiceAxesY()
-        else:
-            if self.__popupMenu2 != None:
-                print('retrait')
-                self.__Label2.pack_forget()
-                self.__popupMenu2.pack_forget()
-            if self.__numberScreen == '2':
-                if self.__popupMenu5 != None:
-                    self.__popupMenu5.pack_forget()
-                    self.__Label5.pack_forget()
-        if self.__choice == 'M':
-            if self.__popupMenu3 != None:
-                self.__Label3.pack(expand=0,anchor='w')
-                self.__popupMenu3.pack(expand=0,anchor='w')
-            else:
-                self.choiceAxesZ()
-            if self.__numberScreen == '2':
-                if self.__popupMenu6 != None:
-                    self.__Label6.pack(expand=0,anchor='w')
-                    self.__popupMenu6.pack(expand=0,anchor='w')
-        else:
-            if self.__popupMenu3 != None:
-                self.__popupMenu3.pack_forget()
-                self.__Label3.pack_forget()
-            if self.__numberScreen == '2':
-                if self.__popupMenu6 != None:
-                    self.__popupMenu6.pack_forget()
-                    self.__Label6.pack_forget()
         self.__graphe.updateType(self.__choice,self.__numberScreen)
     
     def change_dropdownType(self,*args):
-        print('attention',self.__tkvar.get())
         if (self.__tkvar.get())=='Lignes':
             self.__choice='L'
         else:
@@ -885,11 +815,7 @@ class MainWindow:
                 if (self.__tkvar.get())=='Histogramme':
                     self.__choice='H'
                 else:
-                    if (self.__tkvar.get())=='Heatmap':
-                        self.__choice='M'
-                    else:
-                        self.__choice='P'
-        print(self.__choice)
+                    self.__choice='P'
         self.updateGraph()
 
     def typeGraph(self):
@@ -908,34 +834,12 @@ class MainWindow:
             command=lambda:self.uncheckall(5,cbs),justify='left')
         cbs = [self.__checkbutton_10, self.__checkbutton_11, self.__checkbutton_12]
         self.__cbs=cbs
-        choices={'Lignes','Bars','Points','Histogramme','Heatmap'}
+        choices={'Lignes','Bars','Points','Histogramme'}
         self.__tkvar.set('Points')
         popupMenu=OptionMenu(self.__master,self.__tkvar,*choices)
         Label(self.__master,text="Choose a type of graph").pack(expand=0,anchor='w')
         popupMenu.pack(expand=0,anchor='w')
         self.__tkvar.trace('w',self.change_dropdownType)
-
-    def choiceAxesX(self):
-        listAxes=[]
-        for i in range (len(self.__confi["data_descriptor"])):
-            listAxes.append(self.__confi["data_descriptor"]["keys"][i])
-        listAxes.append("total_time")
-        listAxes.append("ipmi_energy")
-        listAxes.append("ipmi_power")
-        self.__tkvar1.set('ipmi_power')
-        if self.__popupMenu1 == None :
-            self.__popupMenu1=OptionMenu(self.__master,self.__tkvar1,*listAxes)
-            self.__Label1=Label(self.__master,text='Axe X:',justify=LEFT)
-        self.__Label1.pack(expand=0,anchor='w')
-        self.__popupMenu1.pack(expand=0,anchor='w')
-        self.__tkvar1.trace('w',self.change_dropdownAxesX)
-        if self.__numberScreen == '2':
-            self.__tkvar4.set('total_time')
-            if self.__popupMenu4 == None :
-                self.__popupMenu4=OptionMenu(self.__master,self.__tkvar4,*listAxes)
-                self.__Label4=Label(self.__master,text='Axe X Graphe 2:',justify=LEFT).pack(expand=0,anchor='w')
-            self.__popupMenu4.pack(expand=0,anchor='w')
-            self.__tkvar4.trace('w',self.change_dropdownAxesX1)
 
     def choiceAxesY(self):
         listAxesY=[]
@@ -947,70 +851,46 @@ class MainWindow:
         self.__tkvar2.set('ipmi_energy')
         self.__tkvar2.trace('w',self.change_dropdownAxesY)
         if self.__numberScreen == '1':
-            if self.__popupMenu2 == None :
-                self.__popupMenu2=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
-                self.__Label2=Label(self.__master,text='Axe Y:',justify=LEFT)
-            print('ajout3')
-            self.__Label2.pack(expand=0,anchor='w')
-            self.__popupMenu2.pack(expand=0,anchor='w')
+            popupMenu=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
+            Label(self.__master,text='Axe Y:',justify=LEFT).pack(expand=0,anchor='w')
+            popupMenu.pack(expand=0,anchor='w')
         if self.__numberScreen == '2':
-            self.__tkvar5.set('ipmi_energy')
-            if self.__popupMenu2 == None :
-                self.__popupMenu2=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
-                self.__Label2=Label(self.__master,text='Axe Y:',justify=LEFT)
-            print('ajout')
-            self.__Label2.pack(expand=0,anchor='w')
-            self.__popupMenu2.pack(expand=0,anchor='w')
-            if self.__popupMenu5 == None :
-                self.__popupMenu5=OptionMenu(self.__master,self.__tkvar5,*listAxesY)
-                self.__Label5=Label(self.__master,text='Axe Y Graphe 2:',justify=LEFT)
-            self.__Label5.pack(expand=0,anchor='w')
-            self.__popupMenu5.pack(expand=0,anchor='w')
-            self.__tkvar5.trace('w',self.change_dropdownAxesY1)
-          
-    def choiceAxesZ(self):
-        listAxesZ=[]
+            self.__tkvar3.set('ipmi_energy')
+            popupMenu1=OptionMenu(self.__master,self.__tkvar2,*listAxesY)
+            Label(self.__master,text='Axe Y Graphe 1:',justify=LEFT).pack(expand=0,anchor='w')
+            popupMenu1.pack(expand=0,anchor='w')
+            popupMenu2=OptionMenu(self.__master,self.__tkvar3,*listAxesY)
+            Label(self.__master,text='Axe Y Graphe 2:',justify=LEFT).pack(expand=0,anchor='w')
+            popupMenu2.pack(expand=0,anchor='w')
+            self.__tkvar3.trace('w',self.change_dropdownAxesY1)
+        
+    def choiceAxesX(self):
+        listAxes=[]
         for i in range (len(self.__confi["data_descriptor"])):
-            listAxesZ.append(self.__confi["data_descriptor"]["keys"][i])
-        listAxesZ.append("ipmi_energy")
-        listAxesZ.append("ipmi_power")
-        listAxesZ.append("total_time")
-        self.__tkvar3.set('ipmi_energy')
-        self.__tkvar3.trace('w',self.change_dropdownAxesZ)
-        if self.__numberScreen == '1':
-            if self.__popupMenu3 == None :
-                self.__popupMenu3=OptionMenu(self.__master,self.__tkvar3,*listAxesZ)
-                self.__Label3=Label(self.__master,text='Axe Z:',justify=LEFT)
-            self.__Label3.pack(expand=0,anchor='w')
-            self.__popupMenu3.pack(expand=0,anchor='w')
+            listAxes.append(self.__confi["data_descriptor"]["keys"][i])
+        listAxes.append("total_time")
+        listAxes.append("ipmi_energy")
+        listAxes.append("ipmi_power")
+        self.__tkvar1.set('ipmi_power')
+        popupMenu=OptionMenu(self.__master,self.__tkvar1,*listAxes)
+        Label(self.__master,text='Axe X:',justify=LEFT).pack(expand=0,anchor='w')
+        popupMenu.pack(expand=0,anchor='w')
+        self.__tkvar1.trace('w',self.change_dropdownAxesX)
         if self.__numberScreen == '2':
-            self.__tkvar6.set('ipmi_energy')
-            if self.__popupMenu3 == None :
-                self.__popupMenu3=OptionMenu(self.__master,self.__tkvar3,*listAxesZ)
-                self.__Label3=Label(self.__master,text='Axe Z Graphe 1:',justify=LEFT)
-            self.__Label3.pack(expand=0,anchor='w')
-            self.__popupMenu3.pack(expand=0,anchor='w')
-            if self.__popupMenu6 == None :
-                self.__popupMenu6=OptionMenu(self.__master,self.__tkvar6,*listAxesZ)
-                self.__Label6=Label(self.__master,text='Axe Z Graphe 2:',justify=LEFT)
-            self.__Label6.pack(expand=0,anchor='w')
-            self.__popupMenu6.pack(expand=0,anchor='w')
-            self.__tkvar6.trace('w',self.change_dropdownAxesZ1)
-    
+            self.__tkvar4.set('total_time')
+            popupMenu1=OptionMenu(self.__master,self.__tkvar4,*listAxes)
+            Label(self.__master,text='Axe X Graphe 2:',justify=LEFT).pack(expand=0,anchor='w')
+            popupMenu1.pack(expand=0,anchor='w')
+            self.__tkvar4.trace('w',self.change_dropdownAxesX1)
+
     def change_dropdownAxesX(self,*args):
-        print('axesX')
-        print(self.__tkvar1.get())
         self.__graphe.set_axeX(self.__tkvar1.get())
         self.updateGraph()
 
     def change_dropdownAxesY(self,*args):
-        print('axesY')
-        print(self.__tkvar2.get())
+        """print('axesY')
+        print(self.datas['frequency'])"""
         self.__graphe.set_axeY(self.__tkvar2.get())
-        self.updateGraph()
-    
-    def change_dropdownAxesZ(self,*args):
-        self.__graphe.set_axeZ(self.__tkvar3.get())
         self.updateGraph()
     
     def change_dropdownAxesX1(self,*args):
@@ -1018,11 +898,7 @@ class MainWindow:
         self.updateGraph()
 
     def change_dropdownAxesY1(self,*args):
-        self.__graphe.set_axeY1(self.__tkvar5.get())
-        self.updateGraph()
-    
-    def change_dropdownAxesZ1(self,*args):
-        self.__graphe.set_axeZ1(self.__tkvar6.get())
+        self.__graphe.set_axeY1(self.__tkvar3.get())
         self.updateGraph()
     
     def save(self):
@@ -1042,21 +918,8 @@ class MainWindow:
 
     def two(self):
         self.__numberScreen='2'
-        self.choiceAxesX()
-        if self.__choice != 'H' :
-            self.choiceAxesY()
-        if self.__choice == 'M':
-            self.choiceAxesZ()
+        self.updateGraph()
 
     def one(self):
         self.__numberScreen='1'
-        if self.__popupMenu4 != None :
-            self.__popupMenu4.pack_forget()
-            self.__Label4.pack_forget()
-        if self.__popupMenu5 != None :
-            self.__popupMenu5.pack_forget()
-            self.__Label5.pack_forget()
-        if self.__popupMenu6 != None :
-            self.__popupMenu6.pack_forget()
-            self.__Label6.pack_forget()
         self.updateGraph()
