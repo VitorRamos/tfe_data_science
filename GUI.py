@@ -342,11 +342,17 @@ class Graph:
         self.__axesZ[1] = val
         
     def updateType(self,choice,numberGraph):
+        self.__axis.clear()
+        if self.__axis1 != None:
+            self.__axis1.clear()
+            self.__axis2.clear()
         print('nG',numberGraph)
         self.__numberGraph=numberGraph
         self.__choice=choice
         if self.__numberGraph == '1':
-            self.__axis.clear()
+            self.__axis.set_visible(True)
+            self.__axis1.set_visible(False)
+            self.__axis2.set_visible(False)
             temp=[]
             min_v= np.argmin(self.__data_disp[self.__axesY[0]])
             max_v= np.argmax(self.__data_disp[self.__axesY[0]])
@@ -359,10 +365,10 @@ class Graph:
             mean= self.__data_disp[self.__axesY[0]].mean()
             median= self.__data_disp[self.__axesY[0]].median()
             name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]
-            self.__axis.set_title(name)
             if not self.__data_disp.empty:
                 print('test',self.__choice)
-                if self.__choice == 'H':    
+                if self.__choice == 'H':
+                    name='''Graph of '''+self.__axesX[0]    
                     self.__axis.hist(self.__data_disp[self.__axesX[0]],histtype='bar',align='left',rwidth=0.5,label=self.__axesX[0])
                 if self.__choice == 'L':
                     self.__axis.plot(self.__data_disp.loc[min_v][self.__axesX[0]], self.__data_disp.loc[min_v][self.__axesY[0]], 
@@ -403,38 +409,40 @@ class Graph:
                     datapivot = datab.pivot("X","Y","Z").round(3)
                     ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)"""
                     print('before',self.__data_disp[[self.__axesX[0],self.__axesY[0]]])
-                    #test=self.__data_disp[[self.__axesX[0],self.__axesY[0]]].to_numpy()testa,, values='Value'[self.__axesZ[0]]
-                    test=pd.pivot_table(self.__data_disp, index=self.__axesX[0], columns=self.__axesY[0], aggfunc=np.count_nonzero)
+                    #test=self.__data_disp[[self.__axesX[0],self.__axesY[0]]].to_numpy()testa,, values='Value'[self.__axesZ[0]], aggfunc=np.count_nonzero
+                    name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]+''' and '''+self.__axesZ[0]
+                    test=pd.pivot_table(self.__data_disp, index=self.__axesX[0], columns=self.__axesY[0])
                     test=test.fillna(0)
                     print('after',test.shape)
                     testa=self.__data_disp[self.__axesZ[0]].to_numpy()
                     a=self.__axis.pcolormesh(test,cmap='copper')
-                    #anim = animation.FuncAnimation(fig, animate, frames = range(2,155), blit = False)
+                    #anim = animation.FuncAnimation(fig, animate, frames = range(2,155), blit = False)testa,
                     majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
-                    ax.xaxis.set_major_formatter(majorFormatter)
+                    """ax.xaxis.set_major_formatter(majorFormatter)
                     ax.yaxis.set_major_formatter(majorFormatter)
                     # split axes of heatmap to put colorbar
                     ax_divider = make_axes_locatable(ax)
                     # define size and padding of axes for colorbar
                     cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
                     # make colorbar for heatmap. 
-                    # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
-                    colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
+                    # Heatmap returns an axes obj but you need to get a mappable obj (get_children),cax = caxx.get_children()[0]"""
+                    colorbar(a, ax=self.__axis)
                 print('data_disp[self.__axesY]',self.__data_disp[self.__axesY])    
                 self.__axis.set_xlabel(self.__axesX[0])
                 if self.__choice == 'H':
                     self.__axis.set_ylabel('Samples')
                 else:
                     self.__axis.set_ylabel(self.__axesY[0])
+                self.__axis.set_title(name)
                 self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
                 self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         if self.__numberGraph == '2':
             self.__axis.set_visible(False)
             self.__axis1.set_visible(True)
             self.__axis2.set_visible(True)
-            self.__axis.clear()
+            """self.__axis.clear()
             self.__axis1.clear()
-            self.__axis2.clear()
+            self.__axis2.clear()"""
             print('bb',self.__axesY[0])
             temp0=[]
             temp1=[]
@@ -455,11 +463,11 @@ class Graph:
             median2= self.__data_disp[self.__axesY[1]].median()
             median1= self.__data_disp[self.__axesY[0]].median()
             name1='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]
-            self.__axis1.set_title(name1)
             name2='''Graph of '''+self.__axesY[1]+''' in relation of '''+self.__axesX[1]
-            self.__axis2.set_title(name2)
             if not self.__data_disp.empty:
-                if self.__choice == 'H':    
+                if self.__choice == 'H':
+                    name1='''Graph of '''+self.__axesX[0]
+                    name2='''Graph of '''+self.__axesX[1] 
                     self.__axis1.hist(self.__data_disp[self.__axesX[0]],histtype='bar',align='left',rwidth=0.5,label=self.__axesX[0])
                     self.__axis2.hist(self.__data_disp[self.__axesX[1]],histtype='bar',align='left',rwidth=0.5,label=self.__axesX[1])
                 if self.__choice == 'L':
@@ -528,6 +536,8 @@ class Graph:
                     self.__axis2.plot([self.__data_disp[self.__axesX[1]].min(), self.__data_disp[self.__axesX[1]].max()],
                                     [median2, median2],c='cyan', marker = "P",label="Median")
                 if self.__choice == 'M':
+                    name1='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]+''' and '''+self.__axesZ[0]
+                    name2='''Graph of '''+self.__axesY[1]+''' in relation of '''+self.__axesX[1]+''' and '''+self.__axesZ[1]
                     datab = pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
                     datapivot = datab.pivot("X","Y","Z").round(3)
                     ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)
@@ -542,6 +552,8 @@ class Graph:
                     # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
                     colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
                 self.__axis1.set_xlabel(self.__axesX[0])
+            self.__axis1.set_title(name1)
+            self.__axis2.set_title(name2)
             self.__axis1.set_ylabel(self.__axesY[0])
             self.__box1 = self.__axis1.get_position()
             self.__pos1 = self.__box1.width * 0.7
@@ -777,6 +789,7 @@ class MainWindow:
         self.__filemenu.add_command(label="Exit", command=self.quit)
     
     def reset(self):
+        self.__numberScreen='1'
         self.uncheckall(6,self.__cbs)
         self.__graphe.reset()
         self.update_text(None,3)
@@ -932,8 +945,9 @@ class MainWindow:
         if self.__numberScreen == '2':
             self.__tkvar4.set('total_time')
             if self.__popupMenu4 == None :
+                self.__Label4=Label(self.__master,text='Axe X Graphe 2:',justify=LEFT)
                 self.__popupMenu4=OptionMenu(self.__master,self.__tkvar4,*listAxes)
-                self.__Label4=Label(self.__master,text='Axe X Graphe 2:',justify=LEFT).pack(expand=0,anchor='w')
+            self.__Label4.pack(expand=0,anchor='w')
             self.__popupMenu4.pack(expand=0,anchor='w')
             self.__tkvar4.trace('w',self.change_dropdownAxesX1)
 
@@ -962,8 +976,8 @@ class MainWindow:
             self.__Label2.pack(expand=0,anchor='w')
             self.__popupMenu2.pack(expand=0,anchor='w')
             if self.__popupMenu5 == None :
-                self.__popupMenu5=OptionMenu(self.__master,self.__tkvar5,*listAxesY)
                 self.__Label5=Label(self.__master,text='Axe Y Graphe 2:',justify=LEFT)
+                self.__popupMenu5=OptionMenu(self.__master,self.__tkvar5,*listAxesY)
             self.__Label5.pack(expand=0,anchor='w')
             self.__popupMenu5.pack(expand=0,anchor='w')
             self.__tkvar5.trace('w',self.change_dropdownAxesY1)
@@ -986,13 +1000,13 @@ class MainWindow:
         if self.__numberScreen == '2':
             self.__tkvar6.set('ipmi_energy')
             if self.__popupMenu3 == None :
-                self.__popupMenu3=OptionMenu(self.__master,self.__tkvar3,*listAxesZ)
                 self.__Label3=Label(self.__master,text='Axe Z Graphe 1:',justify=LEFT)
+                self.__popupMenu3=OptionMenu(self.__master,self.__tkvar3,*listAxesZ)
             self.__Label3.pack(expand=0,anchor='w')
             self.__popupMenu3.pack(expand=0,anchor='w')
             if self.__popupMenu6 == None :
-                self.__popupMenu6=OptionMenu(self.__master,self.__tkvar6,*listAxesZ)
                 self.__Label6=Label(self.__master,text='Axe Z Graphe 2:',justify=LEFT)
+                self.__popupMenu6=OptionMenu(self.__master,self.__tkvar6,*listAxesZ)
             self.__Label6.pack(expand=0,anchor='w')
             self.__popupMenu6.pack(expand=0,anchor='w')
             self.__tkvar6.trace('w',self.change_dropdownAxesZ1)
