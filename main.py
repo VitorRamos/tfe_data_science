@@ -11,7 +11,7 @@ root=tix.Tk()
 
 def main():
     setup=setupFile()
-    name="d:\Profiles\igauthier\Documents\cours\TFE\completo_xhpl_2.json"
+    name="d:\Profiles\igauthier\Documents\cours\TFE\completo_black_3.json"
     datajs=readJson(name)
     datatemp=datajs.read
     datas=datajs.sens[(datajs.sens["sensors"].str.contains("ipmi"))]

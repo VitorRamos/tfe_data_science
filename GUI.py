@@ -55,6 +55,7 @@ class Graph:
         self.sfreq=None
         self.scores=None
         self.sinput=None
+        self.__cb=None
         min_v= np.argmin(self.__data_disp[self.__axesY[0]])
         max_v= np.argmax(self.__data_disp[self.__axesY[0]])
         mean= self.__data_disp[self.__axesY[0]].mean()
@@ -116,7 +117,7 @@ class Graph:
             cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
             # make colorbar for heatmap. 
             # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
-            colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
+            self.__cb=colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
         self.__axis.set_xlabel(self.__axesX[0])
         if self.__choice == 'H':
             self.__axis.set_ylabel('Samples')
@@ -140,12 +141,17 @@ class Graph:
             self.__core=self.scores.val
         if self.sinput!=None:
             self.__input=self.sinput.val
+        print('mnt',self.sfreq)
+        print('mnt',self.sinput)
+        print('mnt',self.scores)
+        print('mnt',self.__axfreq.get_visible())
+        print('mnt',self.__axcore.get_visible())
+        #print('mnt',self.__axinput.get_visible())
         if self.sfreq!=None and self.__axfreq.get_visible()==True:
             print('frequence',self.__freq)
             print('axfreq',self.__axfreq.get_visible())
             if self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==True:
-                self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
-                                                &(self.__data["input"]==self.__input)]
+                self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
             elif(self.scores!=None and self.sinput==None and self.__axcore.get_visible()==True)or(self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)]
             elif(self.scores==None and self.sinput!=None and self.__axinput.get_visible()==True)or(self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==True):
@@ -155,8 +161,7 @@ class Graph:
         if self.sinput!=None and self.__axinput.get_visible():
             print('axinput',self.__axinput.get_visible())
             if self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==True and self.__axfreq.get_visible()==True:
-                self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
-                                                &(self.__data["input"]==self.__input)]
+                self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
             elif(self.sfreq!=None and self.scores==None)or(self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==False and self.__axfreq.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["input"]==self.__input)&(self.__data["frequency"]==self.__freq)]
             elif(self.sfreq==None and self.scores!=None)or(self.sfreq!=None and self.scores!=None and self.__axcore.get_visible()==True and self.__axfreq.get_visible()==False):
@@ -165,14 +170,23 @@ class Graph:
                 self.__data_disp= self.__data[self.__data["input"]==self.__input]
         if self.scores!=None and self.__axcore.get_visible():
             if(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__axinput.get_visible()==True):
-                self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)
-                                                &(self.__data["input"]==self.__input)]
+                self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
             elif(self.sfreq!=None and self.sinput==None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==True and self.__axinput.get_visible()==False):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["frequency"]==self.__freq)]
             elif(self.sfreq==None and self.sinput!=None)or(self.sfreq!=None and self.sinput!=None and self.__axfreq.get_visible()==False and self.__axinput.get_visible()==True):
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["input"]==self.__input)]
             else:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)]
+        if (self.sfreq!=None and self.__axfreq.get_visible()==False and self.sinput!=None and self.__axinput.get_visible()==False and 
+        self.scores!=None and self.__axcore.get_visible()==False)or(self.sfreq!=None and self.__axfreq.get_visible()==False and 
+        self.sinput!=None and self.__axinput.get_visible()==False and self.scores==None)or(self.sfreq!=None and 
+        self.__axfreq.get_visible()==False and self.sinput==None and self.scores==None)or(self.sfreq==None and self.sinput==None and 
+        self.scores==None)or(self.sfreq==None and self.sinput!=None and self.__axinput.get_visible()==False and self.scores!=None and 
+        self.__axcore.get_visible()==False)or(self.sfreq!=None and self.__axfreq.get_visible()==False and self.sinput==None and 
+        self.scores!=None and self.__axcore.get_visible()==False)or(self.sfreq==None and self.sinput!=None and 
+        self.__axinput.get_visible()==False and self.scores==None)or(self.sfreq==None and self.sinput==None and self.scores!=None and 
+        self.__axcore.get_visible()==False):
+            self.__data_disp= self.__data
         self.updateType(self.__choice,self.__numberGraph)
 
     def simpleGraphe(self,sliders):
@@ -241,8 +255,8 @@ class Graph:
     def twoGraphes(self,sliders):
         """Creating to graph to compare them."""
         self.__sliders=sliders
-        self.__fig.subplots_adjust(bottom=0.2)
-        self.__graphe=plt.subplots(111)
+        #self.__fig.subplots_adjust(bottom=0.2)
+        #self.__graphe=plt.subplots(111)
         self.__axcolor = 'lightgoldenrodyellow'
         if self.__sliders[1]==1:
             if self.sfreq==None:
@@ -306,7 +320,7 @@ class Graph:
         self.__canvas=FigureCanvasTkAgg(self.__fig)
         self.__canvas.get_tk_widget().place(x=300,y=40)"""
         self.updateType(self.__choice,self.__numberGraph)
-        self.__canvas.draw()
+        #self.__canvas.draw()
 
     def reset(self):
         if self.__sliders[0]==1:
@@ -343,6 +357,11 @@ class Graph:
         
     def updateType(self,choice,numberGraph):
         self.__axis.clear()
+        if self.__cb != None:
+            self.__cb.ax.clear()
+            self.__cb.ax.axis('off')
+        print('test10',self.__fig.get_axes())
+        print(len(self.__fig.get_axes()))
         if self.__axis1 != None:
             self.__axis1.clear()
             self.__axis2.clear()
@@ -353,19 +372,21 @@ class Graph:
             self.__axis.set_visible(True)
             self.__axis1.set_visible(False)
             self.__axis2.set_visible(False)
+            # if len(self.__fig.get_axes())>3:
+            #     self.__fig.delaxes(self.__axis)
             temp=[]
-            min_v= np.argmin(self.__data_disp[self.__axesY[0]])
-            max_v= np.argmax(self.__data_disp[self.__axesY[0]])
             #widthscr=self.__widthscr/180
             #self.__fig = Figure(figsize=(widthscr,self.__heightscr), dpi=100)
-            self.__canvas.get_tk_widget().place(x=590,y=10)
-            self.__axis=self.__fig.add_subplot(111)
-            for i in range (len(self.__data_disp[self.__axesX[0]])):
-                temp.append(self.__median[self.__axesY[0]])
-            mean= self.__data_disp[self.__axesY[0]].mean()
-            median= self.__data_disp[self.__axesY[0]].median()
+            #self.__canvas.get_tk_widget().place(x=590,y=10)
+            #self.__axis=self.__fig.add_subplot(111)
             name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]
             if not self.__data_disp.empty:
+                min_v= np.argmin(self.__data_disp[self.__axesY[0]])
+                max_v= np.argmax(self.__data_disp[self.__axesY[0]])
+                for i in range (len(self.__data_disp[self.__axesX[0]])):
+                    temp.append(self.__median[self.__axesY[0]])
+                mean= self.__data_disp[self.__axesY[0]].mean()
+                median= self.__data_disp[self.__axesY[0]].median()
                 print('test',self.__choice)
                 if self.__choice == 'H':
                     name='''Graph of '''+self.__axesX[0]    
@@ -412,9 +433,9 @@ class Graph:
                     #test=self.__data_disp[[self.__axesX[0],self.__axesY[0]]].to_numpy()testa,, values='Value'[self.__axesZ[0]], aggfunc=np.count_nonzero
                     name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]+''' and '''+self.__axesZ[0]
                     test=pd.pivot_table(self.__data_disp, index=self.__axesX[0], columns=self.__axesY[0])
-                    test=test.fillna(0)
+                    #test=test.fillna(0)
                     print('after',test.shape)
-                    testa=self.__data_disp[self.__axesZ[0]].to_numpy()
+                    #testa=self.__data_disp[self.__axesZ[0]].to_numpy()
                     a=self.__axis.pcolormesh(test,cmap='copper')
                     #anim = animation.FuncAnimation(fig, animate, frames = range(2,155), blit = False)testa,
                     majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
@@ -426,15 +447,17 @@ class Graph:
                     cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
                     # make colorbar for heatmap. 
                     # Heatmap returns an axes obj but you need to get a mappable obj (get_children),cax = caxx.get_children()[0]"""
-                    colorbar(a, ax=self.__axis)
+                    self.__cb=colorbar(a, ax=self.__axis,drawedges=False)
                 print('data_disp[self.__axesY]',self.__data_disp[self.__axesY])    
                 self.__axis.set_xlabel(self.__axesX[0])
                 if self.__choice == 'H':
                     self.__axis.set_ylabel('Samples')
                 else:
                     self.__axis.set_ylabel(self.__axesY[0])
+                self.__box = self.__axis.get_position()
+                self.__pos=self.__box.width * 0.7
                 self.__axis.set_title(name)
-                self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
+                #self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
                 self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         if self.__numberGraph == '2':
             self.__axis.set_visible(False)
@@ -557,13 +580,13 @@ class Graph:
             self.__axis1.set_ylabel(self.__axesY[0])
             self.__box1 = self.__axis1.get_position()
             self.__pos1 = self.__box1.width * 0.7
-            self.__axis1.set_position([self.__box1.x0, self.__box1.y0, self.__pos1, self.__box1.height])
+            #self.__axis1.set_position([self.__box1.x0, self.__box1.y0, self.__pos1, self.__box1.height])
             self.__axis1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
             self.__axis2.set_xlabel(self.__axesX[1])
             self.__axis2.set_ylabel(self.__axesY[1])
             self.__box2 = self.__axis2.get_position()
             self.__pos2=self.__box2.width * 0.7
-            self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
+            #self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
             self.__axis2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         self.__a=self.__fig.canvas.draw_idle()
 
@@ -571,29 +594,32 @@ class Graph:
         return self.__fig
 
     def getVal(self):
-        if self.sfreq!=None:
-            if self.scores!=None and self.sinput!=None:
+        listVal=['None','None','None']
+        if self.sfreq!=None and self.__axfreq.get_visible()==True:
+            if self.scores!=None and self.__axcore.get_visible() and self.__axinput.get_visible() and self.sinput!=None:
                 listVal=[self.__freq,self.__input,self.__core]
-            if self.scores!=None and self.sinput==None:
-                listVal=[self.__freq,self.__input,'None']
-            if self.scores==None and self.sinput!=None:
+            if self.scores!=None and self.sinput==None and self.__axcore.get_visible() and self.__axinput.get_visible()==False:
                 listVal=[self.__freq,'None',self.__core]
-            if self.scores==None and self.sinput==None and self.__axfreq.get_visible()==True:
+            if self.scores==None and self.sinput!=None and self.__axinput.get_visible() and self.__axcore.get_visible()==False:
+                listVal=[self.__freq,self.__core,'None']
+            if self.scores==None and self.sinput==None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==False:
                 listVal=[self.__freq,'None','None']
             else:
                 listVal=['None','None','None']
-        if self.scores!=None and self.sfreq==None:
-            if self.sinput!=None:
+        if self.scores!=None and self.__axcore.get_visible():
+            if self.sinput!=None and self.__axinput.get_visible()==False:
+                listVal=['None','None',self.__core]
+            elif self.sinput!=None and self.__axinput.get_visible():
                 listVal=['None',self.__input,self.__core]
-            elif self.__axcore.get_visible()==False:
-                listVal=['None','None','None']
             else:
                 listVal=['None','None',self.__core]
-        if self.sinput!=None and self.sfreq==None:
-            if self.scores==None:
+        if self.sinput!=None and self.__axinput.get_visible():
+            if self.scores!=None and self.__axcore.get_visible()==False:
                 listVal=['None',self.__input,'None']
-        if self.sinput==None and self.scores==None and self.sfreq==None:
-            listVal=['None','None','None']
+            elif self.scores!=None and self.__axcore.get_visible():
+                listVal=['None',self.__input,self.__core]
+            else:
+                listVal=['None',self.__input,'None']
         return listVal
 
 class MainWindow:
