@@ -2,7 +2,6 @@ import inspect,os,matplotlib
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 matplotlib.use('TkAgg')
 from pylab import plot,axis,savefig,show,title
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -11,6 +10,7 @@ from matplotlib.widgets import Slider
 #from tkinter import filedialog, messagebox
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from mpl_toolkits.axes_grid1.colorbar import colorbar
+from scipy.interpolate import interp2d
 from tkinter import *
 
 class Graph:
@@ -31,12 +31,12 @@ class Graph:
         self.__heightscr=heightscr
         self.__widthscr=widthscr
         heightscr=heightscr/120
-        widthscr=widthscr/180
+        widthscr=widthscr/160
         self.__fig = Figure(figsize=(widthscr,heightscr), dpi=100)
         self.__fig.subplots_adjust(bottom=0.25,hspace=0.4)
         self.__canvas=FigureCanvasTkAgg(self.__fig,master=self.__master)
         self.__data_disp= self.__data
-        self.__canvas.get_tk_widget().place(x=590,y=10)
+        self.__canvas.get_tk_widget().place(x=530,y=10)
         self.__max=data.getMax(self.__data_disp)
         self.__min=data.getMin(self.__data_disp)
         self.__median=data.getMedian(self.__data_disp)
@@ -44,7 +44,7 @@ class Graph:
         self.__choice=choice
         self.__axesX = ["ipmi_power","total_time"]
         self.__axesY = ["ipmi_energy","ipmi_energy"]
-        self.__axesZ = ["total_time","ipmi_energy"]
+        self.__axesZ = ["input","ipmi_energy"]
         self.__numberGraph='1'
         self.__sliders=[0,0,0]
         self.__axis1=self.__fig.add_subplot(211)
@@ -61,7 +61,8 @@ class Graph:
         mean= self.__data_disp[self.__axesY[0]].mean()
         median= self.__data_disp[self.__axesY[0]].median()
         for i in range (len(self.__data_disp[self.__axesX[0]])):
-            temp.append(self.__median[self.__axesY[0]])
+            #temp.append(self.__median[self.__axesY[0]])
+            temp.append(median)
         self.__axis= self.__fig.add_subplot(111)
         if self.__choice == 'H':
             self.__axis.hist(self.__data_disp[self.__axesX[0]],histtype='bar',align='left',rwidth=0.5,label=self.__axesX[0])
@@ -104,28 +105,57 @@ class Graph:
             self.__axis.plot([self.__data_disp[self.__axesX[0]].min(), self.__data_disp[self.__axesX[0]].max()], [median,median],
                                 c='cyan', marker = "P",label="Median")
         if self.__choice == 'M':
-            datab = pd.DataFrame({'X':self.__data_disp[self.__axesX[0]],'Y':self.__data_disp[self.__axesY[0]],
-                        'Z':self.__data_disp[self.__axesZ[0]]})
-            datapivot = datab.pivot("X","Y","Z").round(3)
-            ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)
+            name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]+''' and '''+self.__axesZ[0]
+            a=interp2d(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]],self.__data_disp[self.__axesZ[0]],kind="linear")
+            test=a(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]])
+            a=self.__axis.pcolormesh(test,cmap='copper')
             majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
-            ax.xaxis.set_major_formatter(majorFormatter)
-            ax.yaxis.set_major_formatter(majorFormatter)
+            self.__cb=colorbar(a, ax=self.__axis,drawedges=False)
             # split axes of heatmap to put colorbar
-            ax_divider = make_axes_locatable(ax)
+            #ax_divider = make_axes_locatable(ax)
             # define size and padding of axes for colorbar
-            cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
+            #cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
             # make colorbar for heatmap. 
             # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
-            self.__cb=colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
-        self.__axis.set_xlabel(self.__axesX[0])
+            #self.__cb=colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
+        if self.__axesX[0] == 'cores':
+            legend = ' '
+        if self.__axesX[0] == 'frequency':
+            legend = '[GHz]'
+        if self.__axesX[0] == 'ipmi_energy':
+            legend = '[J]'
+        if self.__axesX[0] == 'ipmi_power':
+            legend = '[W]'
+        if self.__axesX[0] == 'input':
+            legend = ' '
+        if self.__axesX[0] == 'total_time':
+            legend = '[s]'
+        self.__axis.set_xlabel(self.__axesX[0]+legend)
         if self.__choice == 'H':
             self.__axis.set_ylabel('Samples')
         else:
-            self.__axis.set_ylabel(self.__axesY[0])
+            if self.__axesY[0] == 'cores':
+                legend = ' '
+            if self.__axesY[0] == 'frequency':
+                legend = '[GHz]'
+            if self.__axesY[0] == 'ipmi_energy':
+                legend = '[J]'
+            if self.__axesY[0] == 'ipmi_power':
+                legend = '[W]'
+            if self.__axesY[0] == 'input':
+                legend = ' '
+            if self.__axesY[0] == 'total_time':
+                legend = '[s]'
+            self.__axis.set_ylabel(self.__axesY[0]+legend)
         self.__box = self.__axis.get_position()
+        self.__box1 = self.__axis1.get_position()
+        self.__box2 = self.__axis2.get_position()
         self.__pos=self.__box.width * 0.7
+        self.__pos1=self.__box.width * 0.9
+        self.__pos2=self.__box.width * 0.9
         self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
+        self.__axis1.set_position([self.__box1.x0, self.__box1.y0, self.__pos1, self.__box1.height])
+        self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
         self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
         #self.__graph=self.simpleGraphe(self.__sliders)
@@ -143,9 +173,8 @@ class Graph:
             self.__input=self.sinput.val
         print('mnt',self.sfreq)
         print('mnt',self.sinput)
-        print('mnt',self.scores)
-        print('mnt',self.__axfreq.get_visible())
-        print('mnt',self.__axcore.get_visible())
+        #print('mnt',self.__axfreq.get_visible())
+        #print('mnt',self.__axcore.get_visible())
         #print('mnt',self.__axinput.get_visible())
         if self.sfreq!=None and self.__axfreq.get_visible()==True:
             print('frequence',self.__freq)
@@ -258,6 +287,7 @@ class Graph:
         #self.__fig.subplots_adjust(bottom=0.2)
         #self.__graphe=plt.subplots(111)
         self.__axcolor = 'lightgoldenrodyellow'
+
         if self.__sliders[1]==1:
             if self.sfreq==None:
                 self.__axfreq=self.__fig.add_axes([0.2,0.11,0.6,0.03], facecolor=self.__axcolor)
@@ -268,14 +298,14 @@ class Graph:
                 self.__axfreq.set_visible(True)
         elif self.sfreq:
             self.__axfreq.set_visible(False)
-            if self.scores!=None and self.sinput!=None:
+            if self.scores!=None and self.sinput!=None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)&(self.__data["input"]==self.__input)]
-            if self.scores!=None and self.sinput==None:
+            if self.scores!=None and self.sinput==None and self.__axcore.get_visible()==True and self.__axinput.get_visible()==False:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)]
-            if self.scores==None and self.sinput!=None:
-                if self.__input!=None:
+            if self.scores==None and self.sinput!=None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==True:
+                if self.__input!=None and self.__axinput.get_visible()==True:
                     self.__data_disp= self.__data[(self.__data["input"]==self.__input)]
-            elif self.scores==None and self.sinput==None:
+            elif self.scores==None and self.sinput==None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==False:
                 self.__data_disp= self.__data
         if self.__sliders[0]==1:
             if self.scores==None:
@@ -286,13 +316,13 @@ class Graph:
                 self.__axcore.set_visible(True)
         elif self.scores:
             self.__axcore.set_visible(False)
-            if self.sfreq!=None and self.sinput!=None:
+            if self.sfreq!=None and self.sinput!=None and self.__axinput.get_visible()==True and self.__axfreq.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["input"]==self.__input)]
-            if self.sfreq!=None and self.sinput==None:
+            if self.sfreq!=None and self.sinput==None and self.__axinput.get_visible()==False and self.__axfreq.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["frequency"]==self.__freq)]
-            if self.sfreq==None and self.sinput!=None:
+            if self.sfreq==None and self.sinput!=None and self.__axinput.get_visible()==True and self.__axfreq.get_visible()==False:
                 self.__data_disp= self.__data[(self.__data["input"]==self.__input)]
-            elif self.sfreq==None and self.sinput==None:
+            elif self.sfreq==None and self.sinput==None and self.__axinput.get_visible()==False and self.__axfreq.get_visible()==False:
                 self.__data_disp= self.__data
         if self.__sliders[2]==1:
             if self.sinput==None:
@@ -303,11 +333,11 @@ class Graph:
                 self.__axinput.set_visible(True)
         elif self.sinput:
             self.__axinput.set_visible(False)
-            if self.sfreq!=None and self.scores!=None:
+            if self.sfreq!=None and self.scores!=None and self.__axfreq.get_visible()==True and self.__axcore.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["frequency"]==self.__freq)&(self.__data["cores"]==self.__core)]
-            if self.sfreq!=None and self.scores==None:
+            if self.sfreq!=None and self.scores==None and self.__axfreq.get_visible()==True and self.__axcore.get_visible()==False:
                 self.__data_disp= self.__data[(self.__data["frequency"]==self.__freq)]
-            if self.sfreq==None and self.scores!=None:
+            if self.sfreq==None and self.scores!=None and self.__axfreq.get_visible()==False and self.__axcore.get_visible()==True:
                 self.__data_disp= self.__data[(self.__data["cores"]==self.__core)]
             elif self.sfreq==None and self.scores==None:
                 self.__data_disp= self.__data
@@ -383,10 +413,10 @@ class Graph:
             if not self.__data_disp.empty:
                 min_v= np.argmin(self.__data_disp[self.__axesY[0]])
                 max_v= np.argmax(self.__data_disp[self.__axesY[0]])
-                for i in range (len(self.__data_disp[self.__axesX[0]])):
-                    temp.append(self.__median[self.__axesY[0]])
-                mean= self.__data_disp[self.__axesY[0]].mean()
                 median= self.__data_disp[self.__axesY[0]].median()
+                for i in range (len(self.__data_disp[self.__axesX[0]])):
+                    temp.append(median)
+                mean= self.__data_disp[self.__axesY[0]].mean()
                 print('test',self.__choice)
                 if self.__choice == 'H':
                     name='''Graph of '''+self.__axesX[0]    
@@ -428,12 +458,19 @@ class Graph:
                 if self.__choice == 'M':
                     """datab = pd.DataFrame({'X':self.__data_disp[self.__axesX[0]],'Y':self.__data_disp[self.__axesY[0]],'Z':self.__data_disp[self.__axesZ[0]]})
                     datapivot = datab.pivot("X","Y","Z").round(3)
-                    ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)"""
-                    print('before',self.__data_disp[[self.__axesX[0],self.__axesY[0]]])
-                    #test=self.__data_disp[[self.__axesX[0],self.__axesY[0]]].to_numpy()testa,, values='Value'[self.__axesZ[0]], aggfunc=np.count_nonzero
+                    ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False),self.__axesY[0]"""
+                    print('before',self.__data_disp[self.__axesX[0]])
+                    print(len(self.__data_disp[self.__axesX[0]]))
+                    print(len(self.__data_disp[self.__axesY[0]]))
+                    print(len(self.__data_disp[self.__axesZ[0]]))
+                    #test=self.__data_disp[[self.__axesX[0],self.__axesY[0]]].to_numpy()#testa,, values='Value'[self.__axesZ[0]], aggfunc=np.count_nonzero
                     name='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]+''' and '''+self.__axesZ[0]
-                    test=pd.pivot_table(self.__data_disp, index=self.__axesX[0], columns=self.__axesY[0])
+                    a=interp2d(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]],self.__data_disp[self.__axesZ[0]],kind="linear")
+                    #test=pd.DataFrame(data=a,index=[self.__axesX[0], self.__axesY[0]], columns=[self.__axesX[0], self.__axesY[0]])
+                    #test=pd.pivot_table(a, index=self.__axesX[0], columns=self.__axesY[0])
                     #test=test.fillna(0)
+                    print('interp2d',a(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]]))
+                    test=a(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]])
                     print('after',test.shape)
                     #testa=self.__data_disp[self.__axesZ[0]].to_numpy()
                     a=self.__axis.pcolormesh(test,cmap='copper')
@@ -447,15 +484,40 @@ class Graph:
                     cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
                     # make colorbar for heatmap. 
                     # Heatmap returns an axes obj but you need to get a mappable obj (get_children),cax = caxx.get_children()[0]"""
+                    self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
                     self.__cb=colorbar(a, ax=self.__axis,drawedges=False)
-                print('data_disp[self.__axesY]',self.__data_disp[self.__axesY])    
-                self.__axis.set_xlabel(self.__axesX[0])
+                print('data_disp[self.__axesY]',self.__data_disp[self.__axesY])
+                if self.__axesX[0] == 'cores':
+                    legend = ' '
+                if self.__axesX[0] == 'frequency':
+                    legend = '[GHz]'
+                if self.__axesX[0] == 'ipmi_energy':
+                    legend = '[J]'
+                if self.__axesX[0] == 'ipmi_power':
+                    legend = '[W]'
+                if self.__axesX[0] == 'input':
+                    legend = ' '
+                if self.__axesX[0] == 'total_time':
+                    legend = '[s]'  
+                self.__axis.set_xlabel(self.__axesX[0]+legend)
                 if self.__choice == 'H':
                     self.__axis.set_ylabel('Samples')
                 else:
-                    self.__axis.set_ylabel(self.__axesY[0])
+                    if self.__axesY[0] == 'cores':
+                        legend = ' '
+                    if self.__axesY[0] == 'frequency':
+                        legend = '[GHz]'
+                    if self.__axesY[0] == 'ipmi_energy':
+                        legend = '[J]'
+                    if self.__axesY[0] == 'ipmi_power':
+                        legend = '[W]'
+                    if self.__axesY[0] == 'input':
+                        legend = ' '
+                    if self.__axesY[0] == 'total_time':
+                        legend = '[s]'
+                    self.__axis.set_ylabel(self.__axesY[0]+legend)
                 self.__box = self.__axis.get_position()
-                self.__pos=self.__box.width * 0.7
+                #self.__pos=self.__box.width*0.7
                 self.__axis.set_title(name)
                 #self.__axis.set_position([self.__box.x0, self.__box.y0, self.__pos, self.__box.height])
                 self.__axis.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -477,14 +539,14 @@ class Graph:
             self.__axis2=self.__fig.add_subplot(212)
             #widthscr=widthscr/150
             self.__canvas.get_tk_widget().place(x=400,y=10)
-            for i in range (len(self.__data_disp[self.__axesX[0]])):
-                temp0.append(self.__median[self.__axesY[0]])
-            for i in range (len(self.__data_disp[self.__axesX[1]])):
-                temp1.append(self.__median[self.__axesY[1]])
-            mean1= self.__data_disp[self.__axesY[0]].mean()
-            mean2= self.__data_disp[self.__axesY[1]].mean()
             median2= self.__data_disp[self.__axesY[1]].median()
             median1= self.__data_disp[self.__axesY[0]].median()
+            for i in range (len(self.__data_disp[self.__axesX[0]])):
+                temp0.append(median1)
+            for i in range (len(self.__data_disp[self.__axesX[1]])):
+                temp1.append(median2)
+            mean1= self.__data_disp[self.__axesY[0]].mean()
+            mean2= self.__data_disp[self.__axesY[1]].mean()
             name1='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]
             name2='''Graph of '''+self.__axesY[1]+''' in relation of '''+self.__axesX[1]
             if not self.__data_disp.empty:
@@ -561,29 +623,78 @@ class Graph:
                 if self.__choice == 'M':
                     name1='''Graph of '''+self.__axesY[0]+''' in relation of '''+self.__axesX[0]+''' and '''+self.__axesZ[0]
                     name2='''Graph of '''+self.__axesY[1]+''' in relation of '''+self.__axesX[1]+''' and '''+self.__axesZ[1]
-                    datab = pd.DataFrame({'X':self.__data_disp[self.__axesX],'Y':self.__data_disp[self.__axesY],'Z':self.__data_disp[self.__axesZ]})
-                    datapivot = datab.pivot("X","Y","Z").round(3)
-                    ax = sns.heatmap(datapivot, ax=self.__axis,cbar = False)
+                    a=interp2d(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]],self.__data_disp[self.__axesZ[0]],kind="linear")
+                    b=interp2d(self.__data_disp[self.__axesX[1]],self.__data_disp[self.__axesY[1]],self.__data_disp[self.__axesZ[1]],kind="linear")
+                    test=a(self.__data_disp[self.__axesX[0]],self.__data_disp[self.__axesY[0]])
+                    test1=b(self.__data_disp[self.__axesX[1]],self.__data_disp[self.__axesY[1]])
+                    a=self.__axis.pcolormesh(test,cmap='copper')
+                    b=self.__axis.pcolormesh(test1,cmap='copper')
                     majorFormatter = matplotlib.ticker.FormatStrFormatter('%0.2f')
-                    ax.xaxis.set_major_formatter(majorFormatter)
-                    ax.yaxis.set_major_formatter(majorFormatter)
                     # split axes of heatmap to put colorbar
-                    ax_divider = make_axes_locatable(ax)
+                    self.__cb=colorbar(a, ax=self.__axis1,drawedges=False)
                     # define size and padding of axes for colorbar
-                    cax = ax_divider.append_axes('right', size = '5%', pad = '2%')
+                    self.__cb1=colorbar(b, ax=self.__axis2,drawedges=False)
                     # make colorbar for heatmap. 
                     # Heatmap returns an axes obj but you need to get a mappable obj (get_children)
-                    colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
-                self.__axis1.set_xlabel(self.__axesX[0])
+                    #colorbar(ax.get_children()[0], ax=self.__axis,cax = cax)
+                if self.__axesX[0] == 'cores':
+                    legend = ' '
+                if self.__axesX[0] == 'frequency':
+                    legend = '[GHz]'
+                if self.__axesX[0] == 'ipmi_energy':
+                    legend = '[J]'
+                if self.__axesX[0] == 'ipmi_power':
+                    legend = '[W]'
+                if self.__axesX[0] == 'input':
+                    legend = ' '
+                if self.__axesX[0] == 'total_time':
+                    legend = '[s]'
+                self.__axis1.set_xlabel(self.__axesX[0]+legend)
             self.__axis1.set_title(name1)
             self.__axis2.set_title(name2)
-            self.__axis1.set_ylabel(self.__axesY[0])
+            if self.__axesY[0] == 'cores':
+                legend = ' '
+            if self.__axesY[0] == 'frequency':
+                legend = '[GHz]'
+            if self.__axesY[0] == 'ipmi_energy':
+                legend = '[J]'
+            if self.__axesY[0] == 'ipmi_power':
+                legend = '[W]'
+            if self.__axesY[0] == 'input':
+                legend = ' '
+            if self.__axesY[0] == 'total_time':
+                legend = '[s]'
+            self.__axis1.set_ylabel(self.__axesY[0]+legend)
             self.__box1 = self.__axis1.get_position()
             self.__pos1 = self.__box1.width * 0.7
             #self.__axis1.set_position([self.__box1.x0, self.__box1.y0, self.__pos1, self.__box1.height])
             self.__axis1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-            self.__axis2.set_xlabel(self.__axesX[1])
-            self.__axis2.set_ylabel(self.__axesY[1])
+            if self.__axesX[0] == 'cores':
+                legend = ' '
+            if self.__axesX[0] == 'frequency':
+                legend = '[GHz]'
+            if self.__axesX[0] == 'ipmi_energy':
+                legend = '[J]'
+            if self.__axesX[0] == 'ipmi_power':
+                legend = '[W]'
+            if self.__axesX[0] == 'input':
+                legend = ' '
+            if self.__axesX[0] == 'total_time':
+                legend = '[s]'
+            self.__axis2.set_xlabel(self.__axesX[1]+legend)
+            if self.__axesY[0] == 'cores':
+                legend = ' '
+            if self.__axesY[0] == 'frequency':
+                legend = '[GHz]'
+            if self.__axesY[0] == 'ipmi_energy':
+                legend = '[J]'
+            if self.__axesY[0] == 'ipmi_power':
+                legend = '[W]'
+            if self.__axesY[0] == 'input':
+                legend = ' '
+            if self.__axesY[0] == 'total_time':
+                legend = '[s]'
+            self.__axis2.set_ylabel(self.__axesY[1]+legend)
             self.__box2 = self.__axis2.get_position()
             self.__pos2=self.__box2.width * 0.7
             #self.__axis2.set_position([self.__box2.x0, self.__box2.y0, self.__pos2, self.__box2.height])
@@ -602,10 +713,8 @@ class Graph:
                 listVal=[self.__freq,'None',self.__core]
             if self.scores==None and self.sinput!=None and self.__axinput.get_visible() and self.__axcore.get_visible()==False:
                 listVal=[self.__freq,self.__core,'None']
-            if self.scores==None and self.sinput==None and self.__axcore.get_visible()==False and self.__axinput.get_visible()==False:
-                listVal=[self.__freq,'None','None']
             else:
-                listVal=['None','None','None']
+                listVal=[self.__freq,'None','None']
         if self.scores!=None and self.__axcore.get_visible():
             if self.sinput!=None and self.__axinput.get_visible()==False:
                 listVal=['None','None',self.__core]
@@ -1015,7 +1124,7 @@ class MainWindow:
         listAxesZ.append("ipmi_energy")
         listAxesZ.append("ipmi_power")
         listAxesZ.append("total_time")
-        self.__tkvar3.set('ipmi_energy')
+        self.__tkvar3.set('input')
         self.__tkvar3.trace('w',self.change_dropdownAxesZ)
         if self.__numberScreen == '1':
             if self.__popupMenu3 == None :
